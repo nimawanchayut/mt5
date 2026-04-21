@@ -52,8 +52,12 @@
     border-bottom:1px solid var(--border);
     padding:0 20px;
     height:56px;
-    display:flex;align-items:center;justify-content:space-between;
+    display:flex;align-items:center;justify-content:center;
     backdrop-filter:blur(10px);
+  }
+  .topbar-inner{
+    width:100%;max-width:1400px;
+    display:flex;align-items:center;justify-content:space-between;
   }
   .logo{
     font-family:var(--font-mono);font-size:20px;font-weight:600;
@@ -110,7 +114,7 @@
   }
 
   /* CONTENT */
-  .content{padding:16px 20px;display:flex;flex-direction:column;gap:20px}
+  .content{padding:16px 20px;display:flex;flex-direction:column;gap:20px;max-width:1400px;margin:0 auto;width:100%}
 
   /* SECTION HEADER */
   .sec-head{
@@ -295,20 +299,22 @@
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div class="logo">
-    <span class="logo-robot">🤖</span>
-    EA MT5 <span>Dashboard</span>
-  </div>
-  <div class="topbar-right">
-    <div class="live-badge">
-      <span class="live-dot"></span>
-      LIVE
+  <div class="topbar-inner">
+    <div class="logo">
+      <span class="logo-robot">🤖</span>
+      EA MT5 <span>Dashboard</span>
     </div>
-    <div class="clock" id="clock">--:--:--</div>
-    <div class="unit-switch" onclick="toggleUnit()" id="unitSwitch">
-      <div class="unit-switch-pill" id="unitPill"></div>
-      <span class="unit-switch-lbl active" id="lblUSC">USC</span>
-      <span class="unit-switch-lbl inactive" id="lblUSD">USD</span>
+    <div class="topbar-right">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        LIVE
+      </div>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="unit-switch" onclick="toggleUnit()" id="unitSwitch">
+        <div class="unit-switch-pill" id="unitPill"></div>
+        <span class="unit-switch-lbl active" id="lblUSC">USC</span>
+        <span class="unit-switch-lbl inactive" id="lblUSD">USD</span>
+      </div>
     </div>
   </div>
 </div>
