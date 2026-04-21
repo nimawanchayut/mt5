@@ -37,7 +37,7 @@
     --font-sans:'Inter',sans-serif;
   }
 
-  html{background:var(--bg0);color:var(--text1);font-family:var(--font-sans);font-size:13px;line-height:1.5}
+  html{background:var(--bg0);color:var(--text1);font-family:var(--font-sans);font-size:15px;line-height:1.6}
   body{min-height:100vh;background:var(--bg0)}
 
   /* SCROLLBAR */
@@ -51,7 +51,7 @@
     background:var(--bg1);
     border-bottom:1px solid var(--border);
     padding:0 20px;
-    height:56px;
+    height:64px;
     display:flex;align-items:center;justify-content:center;
     backdrop-filter:blur(10px);
   }
@@ -60,11 +60,11 @@
     display:flex;align-items:center;justify-content:space-between;
   }
   .logo{
-    font-family:var(--font-mono);font-size:20px;font-weight:600;
+    font-family:var(--font-mono);font-size:24px;font-weight:600;
     color:var(--blue);letter-spacing:2px;
     display:flex;align-items:center;gap:10px;
   }
-  .logo-robot{font-size:22px;line-height:1}
+  .logo-robot{font-size:26px;line-height:1}
   .logo-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:blink 1.8s infinite}
   @keyframes blink{0%,100%{opacity:1;box-shadow:0 0 6px var(--green)}50%{opacity:.3;box-shadow:none}}
   .logo span{color:var(--blue)}
@@ -77,7 +77,7 @@
   }
   .live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.8s infinite}
   .clock{
-    font-family:var(--font-mono);font-size:12px;
+    font-family:var(--font-mono);font-size:14px;
     color:var(--text1);background:var(--bg2);
     border:1px solid var(--border2);
     padding:3px 10px;border-radius:4px;
@@ -92,14 +92,14 @@
   }
   .unit-switch-pill{
     position:absolute;top:3px;left:3px;
-    width:44px;height:22px;background:var(--blue);
+    width:50px;height:24px;background:var(--blue);
     border-radius:16px;transition:transform .25s cubic-bezier(.4,0,.2,1);
     z-index:0;
   }
-  .unit-switch-pill.right{transform:translateX(44px)}
+  .unit-switch-pill.right{transform:translateX(50px)}
   .unit-switch-lbl{
-    font-family:var(--font-mono);font-size:10px;font-weight:600;
-    width:44px;height:22px;display:flex;align-items:center;justify-content:center;
+    font-family:var(--font-mono);font-size:12px;font-weight:600;
+    width:50px;height:24px;display:flex;align-items:center;justify-content:center;
     border-radius:16px;position:relative;z-index:1;
     transition:color .2s;letter-spacing:.5px;
   }
@@ -110,7 +110,7 @@
   .badge-idle{
     background:#1a0d00;color:#ff8c2a;
     border:1px solid #ff8c2a35;
-    padding:2px 7px;border-radius:10px;font-size:10px;white-space:nowrap;
+    padding:3px 9px;border-radius:10px;font-size:12px;white-space:nowrap;
   }
 
   /* CONTENT */
@@ -129,7 +129,7 @@
     margin-bottom:12px;
   }
   .sec-title{
-    font-family:var(--font-mono);font-size:11px;font-weight:600;
+    font-family:var(--font-mono);font-size:13px;font-weight:600;
     color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;
     white-space:nowrap;
   }
@@ -139,11 +139,11 @@
   .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .kpi{
     background:var(--bg2);border:1px solid var(--border);border-radius:6px;
-    padding:14px 16px;
+    padding:16px 18px;
   }
-  .kpi-label{font-size:10px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase}
-  .kpi-val{font-size:20px;font-weight:600;font-family:var(--font-mono);line-height:1}
-  .kpi-unit{font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--font-mono)}
+  .kpi-label{font-size:12px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase}
+  .kpi-val{font-size:24px;font-weight:600;font-family:var(--font-mono);line-height:1}
+  .kpi-unit{font-size:12px;color:var(--text3);margin-top:4px;font-family:var(--font-mono)}
   /* color classes with !important defined below */
 
   /* RT CARDS */
@@ -156,32 +156,32 @@
   .rt-blue::before{background:var(--blue)}
   .rt-purple::before{background:#a06eff}
   .rt-green::before{background:var(--green)}
-  .rt-label{font-size:10px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
-  .rt-val{font-size:22px;font-weight:600;font-family:var(--font-mono);color:var(--green)}
-  .rt-sub{font-size:10px;color:var(--text3);margin-top:5px;font-family:var(--font-mono)}
+  .rt-label{font-size:12px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px}
+  .rt-val{font-size:26px;font-weight:600;font-family:var(--font-mono);color:var(--green)}
+  .rt-sub{font-size:12px;color:var(--text3);margin-top:5px;font-family:var(--font-mono)}
 
   /* PORT TABLE - S3 */
   .table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
-  .tbl{width:100%;border-collapse:collapse;font-size:12px;font-family:var(--font-mono)}
+  .tbl{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--font-mono)}
   .tbl thead tr{background:var(--bg0)}
   .tbl th{
-    padding:9px 12px;text-align:right;
-    color:var(--text3);font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;
+    padding:11px 14px;text-align:right;
+    color:var(--text3);font-size:12px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;
     border-bottom:1px solid var(--border);white-space:nowrap;
   }
   .tbl th:first-child,.tbl th:nth-child(2),.tbl th:nth-child(3){text-align:left}
-  .tbl td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--bg0);color:var(--text1)}
+  .tbl td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--bg0);color:var(--text1)}
   .tbl td:first-child,.tbl td:nth-child(2),.tbl td:nth-child(3){text-align:left}
   .tbl tbody tr:hover td{background:var(--bg3)}
   .tbl tbody tr:last-child td{border-bottom:none}
 
-  .port-name-col{font-size:12px;font-weight:600;color:var(--text1)}
-  .port-id-col{font-size:10px;color:var(--text3);margin-top:2px}
-  .server-col{font-size:10px;color:var(--text2)}
+  .port-name-col{font-size:14px;font-weight:600;color:var(--text1)}
+  .port-id-col{font-size:12px;color:var(--text3);margin-top:2px}
+  .server-col{font-size:12px;color:var(--text2)}
   .badge-live{
     background:var(--green-bg);color:var(--green);
     border:1px solid #00d68f30;
-    padding:2px 7px;border-radius:10px;font-size:10px;
+    padding:3px 9px;border-radius:10px;font-size:12px;
     display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
   }
   .pos{color:var(--green)!important}
@@ -205,7 +205,7 @@
   }
   .date-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .qbtn{
-    font-family:var(--font-mono);font-size:10px;font-weight:500;
+    font-family:var(--font-mono);font-size:12px;font-weight:500;
     background:var(--bg3);border:1px solid var(--border2);
     color:var(--text2);padding:4px 9px;border-radius:4px;cursor:pointer;
     transition:.15s;white-space:nowrap;
@@ -220,8 +220,8 @@
   }
   .date-input-wrap input[type="date"]{
     background:transparent;border:none;outline:none;
-    color:var(--text2);font-family:var(--font-mono);font-size:10px;
-    width:100px;cursor:pointer;
+    color:var(--text2);font-family:var(--font-mono);font-size:12px;
+    width:110px;cursor:pointer;
     color-scheme:dark;
   }
   .cal-btn{
@@ -230,22 +230,22 @@
   }
   .cal-btn:hover{opacity:1}
 
-  .adv-tbl{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--font-mono)}
+  .adv-tbl{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-mono)}
   .adv-tbl thead tr{background:var(--bg0)}
   .adv-tbl th{
-    padding:8px 10px;text-align:right;
-    color:var(--text3);font-size:9px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;
+    padding:10px 12px;text-align:right;
+    color:var(--text3);font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;
     border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;
   }
   .adv-tbl th:first-child{text-align:left}
   .adv-tbl th:hover{color:var(--blue)}
-  .adv-tbl td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--bg0);color:var(--text1)}
+  .adv-tbl td{padding:10px 12px;text-align:right;border-bottom:1px solid var(--bg0);color:var(--text1)}
   .adv-tbl td:first-child{text-align:left}
   .adv-tbl tbody tr:hover td{background:var(--bg3)}
   .adv-tbl tbody tr:last-child td{border-bottom:none}
   .sort-icon{color:var(--blue);font-size:8px;margin-left:2px}
-  .adv-portname{font-size:11px;font-weight:600;color:var(--text1)}
-  .adv-portid{font-size:9px;color:var(--text3);margin-top:1px}
+  .adv-portname{font-size:13px;font-weight:600;color:var(--text1)}
+  .adv-portid{font-size:11px;color:var(--text3);margin-top:1px}
 
   /* ACCORDION - S5 */
   .acc-box{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
@@ -258,18 +258,18 @@
   }
   .acc-hdr:hover{background:var(--bg3)}
   .acc-left{display:flex;align-items:center;gap:10px;min-width:0}
-  .acc-portname{font-size:13px;font-weight:600;color:var(--text1);font-family:var(--font-mono);white-space:nowrap}
-  .acc-portid{font-size:10px;color:var(--text3);font-family:var(--font-mono)}
+  .acc-portname{font-size:15px;font-weight:600;color:var(--text1);font-family:var(--font-mono);white-space:nowrap}
+  .acc-portid{font-size:12px;color:var(--text3);font-family:var(--font-mono)}
   .acc-server{
     background:var(--bg3);border:1px solid var(--border2);
-    color:var(--text2);padding:1px 7px;border-radius:3px;font-size:9px;
+    color:var(--text2);padding:2px 8px;border-radius:3px;font-size:11px;
     font-family:var(--font-mono);white-space:nowrap;
   }
 
   .acc-quick{display:flex;align-items:center;gap:16px;flex-shrink:0}
   .acc-q{display:flex;flex-direction:column;align-items:flex-end}
-  .acc-qlbl{font-size:9px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase}
-  .acc-qval{font-size:11px;font-weight:600;font-family:var(--font-mono);margin-top:1px}
+  .acc-qlbl{font-size:11px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase}
+  .acc-qval{font-size:13px;font-weight:600;font-family:var(--font-mono);margin-top:1px}
   .acc-arrow{color:var(--text3);font-size:11px;flex-shrink:0;margin-left:6px;transition:transform .2s}
   .acc-arrow.open{transform:rotate(180deg)}
 
@@ -277,15 +277,15 @@
   .acc-body.open{display:block}
   .acc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
   .acc-stat{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:10px 12px}
-  .acc-slbl{font-size:9px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
-  .acc-sval{font-size:14px;font-weight:600;font-family:var(--font-mono)}
+  .acc-slbl{font-size:11px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+  .acc-sval{font-size:16px;font-weight:600;font-family:var(--font-mono)}
 
   .chart-placeholder{
     background:var(--bg2);border:1px solid var(--border);border-radius:5px;
-    height:110px;display:flex;align-items:flex-end;padding:10px 12px 0;
+    height:130px;display:flex;align-items:flex-end;padding:10px 12px 0;
     overflow:hidden;position:relative;gap:3px;
   }
-  .chart-label{position:absolute;top:8px;left:12px;font-size:9px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px}
+  .chart-label{position:absolute;top:8px;left:12px;font-size:11px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px}
   .bar{border-top:2px solid var(--blue);background:linear-gradient(to top,#3d9eff08,#3d9eff22);border-radius:2px 2px 0 0;flex:1;transition:.3s}
 
   /* responsive */
@@ -737,7 +737,7 @@
     </div>
   </div>
 
-  <div style="text-align:center;padding:20px 0;font-size:10px;color:var(--text3);font-family:var(--font-mono);letter-spacing:1px">
+  <div style="text-align:center;padding:20px 0;font-size:12px;color:var(--text3);font-family:var(--font-mono);letter-spacing:1px">
     EA MT5 DASHBOARD · FIREBASE REALTIME DATABASE · GITHUB PAGES
   </div>
 </div>
