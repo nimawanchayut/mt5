@@ -134,224 +134,57 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // State variables
+        // ==========================================
+        // 1. GLOBAL STATE & UTILITIES
+        // ==========================================
         let rawData = {};
         let isUSD = false;
         let dateFilter = { mode: 'all', start: 0, end: 9999999999 };
         let charts = {};
 
-        // --- 1. CLOCK (24Hr Format) ---
-        function updateClock() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-GB', { hour12: false }); // 24-hour format
-            document.getElementById('clock').textContent = timeStr;
-        }
-        setInterval(updateClock, 1000);
-        updateClock();
-
-        // --- 2. GENERATE 10 MOCK PORTS ---
-        function generateMockData() {
-            const mock = {};
-            const nowUnix = Math.floor(Date.now() / 1000);
-            const todayStart = new Date();
-            todayStart.setHours(0,0,0,0);
-            const todayStartUnix = Math.floor(todayStart.getTime() / 1000);
-            const yesterdayStartUnix = todayStartUnix - 86400;
-
-            for(let i = 1; i <= 10; i++) {
-                const login = 10000 + i;
-                const netDeposit = 100000 + (Math.random() * 50000); // 100,000 USC
-                let currentBalance = netDeposit;
-                const deals = [];
-                
-                // Initial Deposit Deal
-                deals.push({ time: nowUnix - (86400 * 30), type: 2, profit: netDeposit, swap: 0, comm: 0 });
-
-                // Generate random trades
-                let totalProfit = 0;
-                for(let j = 0; j < 50; j++) {
-                    const isToday = Math.random() > 0.7;
-                    const isYday = Math.random() > 0.8 && !isToday;
-                    let dealTime = nowUnix - Math.floor(Math.random() * (86400 * 20)); // Random past 20 days
-                    if (isToday) dealTime = todayStartUnix + Math.floor(Math.random() * 36000);
-                    if (isYday) dealTime = yesterdayStartUnix + Math.floor(Math.random() * 36000);
-
-                    const profit = (Math.random() * 2000) - 800; // Random PNL
-                    deals.push({ time: dealTime, type: 0, profit: profit, swap: -10, comm: -5 });
-                    currentBalance += (profit - 10 - 5);
-                }
-
-                // Sort deals by time
-                deals.sort((a,b) => a.time - b.time);
-
-                const currentFloat = (Math.random() * -1000); // Random negative float
-                const todayLowestFloat = currentFloat - (Math.random() * 500);
-
-                mock[login] = {
-                    info: {
-                        login: login,
-                        name: `Port ${i} Master`,
-                        balance: currentBalance,
-                        equity: currentBalance + currentFloat,
-                        float: currentFloat,
-                        today_lowest_float: todayLowestFloat,
-                        prev_max_dd: currentBalance // simplified for % calc
-                    },
-                    deals: deals
-                };
-            }
-            return mock;
-        }
-
-        // Initialize Mock Data first
-        rawData = generateMockData();
-        renderAll();
-
-        // --- 3. FIREBASE CONNECTION ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDxRrMOGjRMpvK-Rzz66-u01nUy2BvT5Ys",
-            authDomain: "ai-affiliate-bot-488110.firebaseapp.com",
-            databaseURL: "https://ai-affiliate-bot-488110-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "ai-affiliate-bot-488110",
-            storageBucket: "ai-affiliate-bot-488110.firebasestorage.app",
-            messagingSenderId: "381914640045",
-            appId: "1:381914640045:web:45ec915156a1a1e4f16024"
-        };
-        try {
-            const app = initializeApp(firebaseConfig);
-            const db = getDatabase(app);
-            onValue(ref(db, 'ports'), (snapshot) => {
-                if (snapshot.exists()) {
-                    rawData = snapshot.val(); // Overwrite mock data with real data
-                    renderAll();
-                }
-            });
-        } catch (e) {
-            console.log("Firebase not configured properly, continuing with mock data.");
-        }
-
-        // --- UNIT CONVERSION ---
-        const toggleEl = document.getElementById('unitToggle');
-        const dotEl = document.querySelector('.dot');
-        const labelEl = document.getElementById('unitLabel');
-        
-        toggleEl.addEventListener('change', (e) => {
-            isUSD = e.target.checked;
-            dotEl.style.transform = isUSD ? 'translateX(100%)' : 'translateX(0)';
-            dotEl.textContent = isUSD ? 'USD' : 'USC';
-            dotEl.className = `dot absolute left-1 top-1 w-8 h-6 rounded-full transition-all transform flex items-center justify-center text-[11px] font-bold text-slate-900 ${isUSD ? 'bg-neon-green translate-x-6' : 'bg-neon-cyan'}`;
-            labelEl.textContent = isUSD ? '(Div 100)' : '(Raw)';
-            renderAll();
-        });
-
-        const fmt = (val) => {
-            if (isNaN(val) || val === undefined) return '0.00';
+        // ย้ายฟังก์ชันทั้งหมดขึ้นมาด้านบนสุดเพื่อป้องกัน Hoisting Error
+        function fmt(val) {
+            if (isNaN(val) || val === undefined || val === null) return '0.00';
             const multiplier = isUSD ? 0.01 : 1;
             const currency = isUSD ? '$' : '¢';
             return `${(val * multiplier).toFixed(2)} <span class="text-[10px] text-slate-500">${currency}</span>`;
-        };
-
-        const colorClass = (val) => val > 0 ? 'text-neon-green' : (val < 0 ? 'text-neon-red' : 'text-slate-300');
-
-        // Copy Link
-        document.getElementById('copyLinkBtn').addEventListener('click', (e) => {
-            navigator.clipboard.writeText(window.location.href);
-            const btn = e.currentTarget;
-            btn.innerHTML = `<i class="fa-solid fa-check"></i> Copied!`;
-            btn.classList.replace('bg-neon-purple', 'bg-neon-green');
-            setTimeout(() => {
-                btn.innerHTML = `<i class="fa-solid fa-share-nodes"></i> Share Link`;
-                btn.classList.replace('bg-neon-green', 'bg-neon-purple');
-            }, 2000);
-        });
-
-        // --- 4. DATE PICKER LOGIC (Today, Yday, Week FIXED) ---
-        document.querySelectorAll('.date-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.date-btn').forEach(b => {
-                    b.classList.remove('bg-neon-cyan', 'text-slate-900', 'font-bold');
-                    b.classList.add('text-slate-300');
-                });
-                e.target.classList.remove('text-slate-300');
-                e.target.classList.add('bg-neon-cyan', 'text-slate-900', 'font-bold');
-                setDateFilter(e.target.getAttribute('data-range'));
-                renderSection5();
-            });
-        });
-
-        function setDateFilter(range) {
-            const now = new Date();
-            let start = new Date(now);
-            let end = new Date(now);
-
-            start.setHours(0,0,0,0); // Default to start of today
-            end.setHours(23,59,59,999); // Default to end of today
-
-            if (range === 'today') {
-                // Today: Already set above
-            }
-            else if (range === 'yday') {
-                start.setDate(now.getDate() - 1);
-                end.setDate(now.getDate() - 1);
-            }
-            else if (range === 'week') {
-                // Week: Sunday to today (or Saturday if end of week)
-                const dayOfWeek = start.getDay(); // 0 is Sunday
-                start.setDate(now.getDate() - dayOfWeek); // Go back to Sunday
-            }
-            else if (range === '7d') {
-                start.setDate(now.getDate() - 7);
-            }
-            else if (range === '30d') {
-                start.setDate(now.getDate() - 30);
-            }
-            else if (range === 'all') {
-                start = new Date(2000, 0, 1); // Way in the past
-            }
-
-            document.getElementById('dateFrom').value = start.toISOString().split('T')[0];
-            document.getElementById('dateTo').value = end.toISOString().split('T')[0];
-            dateFilter = { start: Math.floor(start.getTime()/1000), end: Math.floor(end.getTime()/1000) };
         }
-        setDateFilter('all'); // Initialize
 
-        [document.getElementById('dateFrom'), document.getElementById('dateTo')].forEach(input => {
-            input.addEventListener('change', () => {
-                document.querySelectorAll('.date-btn').forEach(b => {
-                    b.classList.remove('bg-neon-cyan', 'text-slate-900', 'font-bold');
-                    b.classList.add('text-slate-300');
-                });
-                dateFilter.start = Math.floor(new Date(document.getElementById('dateFrom').value).getTime()/1000);
-                dateFilter.end = Math.floor(new Date(document.getElementById('dateTo').value).getTime()/1000) + 86399; 
-                renderSection5();
-            });
-        });
+        function colorClass(val) {
+            return val > 0 ? 'text-neon-green' : (val < 0 ? 'text-neon-red' : 'text-slate-300');
+        }
 
-        // --- MATH CALCULATOR ---
-        function calculateCriticalMath(deals, startT = 0, endT = 9999999999) {
-            if(!deals) return { netDeposit: 0, tradeProfit: 0, wins: 0, losses: 0, trades: 0, historyCurve: [], maxDD: 0, maxDDPerc: 0 };
+        // ==========================================
+        // 2. CORE MATH ENGINE
+        // ==========================================
+        function calculateCriticalMath(dealsInput, startT = 0, endT = 9999999999) {
+            if(!dealsInput) return { netDeposit: 0, tradeProfit: 0, wins: 0, losses: 0, trades: 0, historyCurve: [], maxDD: 0, maxDDPerc: 0 };
+            
+            // Firebase ป้องกัน Error กรณี Deals ส่งมาเป็น Object
+            const deals = Array.isArray(dealsInput) ? dealsInput : Object.values(dealsInput);
             
             let netDeposit = 0, tradeProfit = 0, wins = 0, losses = 0, tradesCount = 0;
             let currentEq = 0, peakEq = 0, maxDD = 0;
             let historyCurve = [];
 
             deals.forEach(deal => {
+                if(!deal || deal.time === undefined) return;
+
                 if(deal.time >= startT && deal.time <= endT) {
-                    if(deal.type === 2) { // Deposit/Withdraw
+                    if(deal.type === 2) { 
                         netDeposit += deal.profit;
                         currentEq += deal.profit;
-                        if(currentEq > peakEq) peakEq = currentEq; // Update Peak
+                        if(currentEq > peakEq) peakEq = currentEq; 
                     } 
-                    else { // Trade
+                    else { 
                         const pnl = deal.profit + (deal.swap||0) + (deal.comm||0);
                         tradeProfit += pnl;
                         currentEq += pnl;
                         tradesCount++;
                         if(pnl > 0) wins++; else if(pnl < 0) losses++;
                         
-                        // Calculate Peak to Trough DD for specific timeframe
                         if(currentEq > peakEq) { peakEq = currentEq; }
-                        const currentDD = currentEq - peakEq; // Negative value
+                        const currentDD = currentEq - peakEq; 
                         if(currentDD < maxDD) { maxDD = currentDD; }
                     }
                     historyCurve.push({ x: deal.time * 1000, y: currentEq });
@@ -359,19 +192,12 @@
             });
             
             const maxDDPerc = peakEq > 0 ? Math.abs((maxDD / peakEq) * 100) : 0;
-
             return { netDeposit, tradeProfit, wins, losses, trades: tradesCount, historyCurve, maxDD, maxDDPerc };
         }
 
-        // --- RENDER FUNCTIONS --- //
-        function renderAll() {
-            renderSection1();
-            renderSection2();
-            renderSection3();
-            renderSection4();
-            renderSection5();
-        }
-
+        // ==========================================
+        // 3. RENDERING ENGINE
+        // ==========================================
         function renderSection1() {
             let tEquity = 0, tBalance = 0, tDeposit = 0, tProfit = 0;
             Object.values(rawData).forEach(port => {
@@ -401,7 +227,9 @@
 
             Object.values(rawData).forEach(port => {
                 if(!port.deals) return;
-                port.deals.forEach(deal => {
+                const deals = Array.isArray(port.deals) ? port.deals : Object.values(port.deals);
+                deals.forEach(deal => {
+                    if(!deal || deal.time === undefined) return;
                     if(deal.type !== 2) {
                         const pnl = deal.profit + (deal.swap||0) + (deal.comm||0);
                         if(deal.time >= now - 3600) p1h += pnl;
@@ -494,16 +322,14 @@
                 `;
             });
             const container = document.getElementById('sec4-accordions');
-            if(container.innerHTML.trim() === '') { container.innerHTML = html; }
-            else { 
-                container.innerHTML = html; 
-                charts = {}; 
-            }
+            container.innerHTML = html; 
+            charts = {}; 
         }
 
         function renderChart(login) {
-            const port = rawData[Object.keys(rawData).find(k => rawData[k].info?.login == login)];
-            if(!port) return;
+            const portKey = Object.keys(rawData).find(k => rawData[k].info?.login == login);
+            if(!portKey) return;
+            const port = rawData[portKey];
             const stats = calculateCriticalMath(port.deals);
             const dataPts = stats.historyCurve.map(d => [d.x, (d.y * (isUSD ? 0.01 : 1)).toFixed(2)]);
             
@@ -527,7 +353,6 @@
             charts[login].render();
         }
 
-        // --- 5. RENDER ADVANCED GRID (WITH UPDATED COLUMNS) ---
         function renderSection5() {
             let html = '';
             const tStart = dateFilter.start;
@@ -536,7 +361,6 @@
             Object.values(rawData).forEach(port => {
                 if(!port.info) return;
                 const { login, balance, equity } = port.info;
-                // Calculate stats strictly within the selected Date Range
                 const stats = calculateCriticalMath(port.deals, tStart, tEnd);
                 
                 const growth = stats.netDeposit > 0 ? (stats.tradeProfit / stats.netDeposit) * 100 : 0;
@@ -560,6 +384,88 @@
             document.getElementById('sec5-tbody').innerHTML = html;
         }
 
-    </script>
-</body>
-</html>
+        function renderAll() {
+            renderSection1();
+            renderSection2();
+            renderSection3();
+            renderSection4();
+            renderSection5();
+        }
+
+        // ==========================================
+        // 4. EVENT LISTENERS
+        // ==========================================
+        const toggleEl = document.getElementById('unitToggle');
+        const dotEl = document.querySelector('.dot');
+        const labelEl = document.getElementById('unitLabel');
+        
+        toggleEl.addEventListener('change', (e) => {
+            isUSD = e.target.checked;
+            dotEl.style.transform = isUSD ? 'translateX(100%)' : 'translateX(0)';
+            dotEl.textContent = isUSD ? 'USD' : 'USC';
+            dotEl.className = `dot absolute left-1 top-1 w-8 h-6 rounded-full transition-all transform flex items-center justify-center text-[11px] font-bold text-slate-900 ${isUSD ? 'bg-neon-green translate-x-8' : 'bg-neon-cyan'}`;
+            labelEl.textContent = isUSD ? '(Div 100)' : '(Raw)';
+            renderAll();
+        });
+
+        document.getElementById('copyLinkBtn').addEventListener('click', (e) => {
+            navigator.clipboard.writeText(window.location.href);
+            const btn = e.currentTarget;
+            btn.innerHTML = `<i class="fa-solid fa-check"></i> Copied!`;
+            btn.classList.replace('bg-neon-purple', 'bg-neon-green');
+            setTimeout(() => {
+                btn.innerHTML = `<i class="fa-solid fa-share-nodes"></i> Share Link`;
+                btn.classList.replace('bg-neon-green', 'bg-neon-purple');
+            }, 2000);
+        });
+
+        // ==========================================
+        // 5. DATE PICKER LOGIC
+        // ==========================================
+        function setDateFilter(range) {
+            const now = new Date();
+            let start = new Date(now);
+            let end = new Date(now);
+            start.setHours(0,0,0,0); 
+            end.setHours(23,59,59,999);
+
+            if (range === 'today') { }
+            else if (range === 'yday') { start.setDate(now.getDate() - 1); end.setDate(now.getDate() - 1); }
+            else if (range === 'week') { const dayOfWeek = start.getDay(); start.setDate(now.getDate() - dayOfWeek); }
+            else if (range === '7d') { start.setDate(now.getDate() - 7); }
+            else if (range === '30d') { start.setDate(now.getDate() - 30); }
+            else if (range === 'all') { start = new Date(2000, 0, 1); }
+
+            document.getElementById('dateFrom').value = start.toISOString().split('T')[0];
+            document.getElementById('dateTo').value = end.toISOString().split('T')[0];
+            dateFilter = { start: Math.floor(start.getTime()/1000), end: Math.floor(end.getTime()/1000) };
+        }
+        
+        setDateFilter('all'); 
+
+        document.querySelectorAll('.date-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.date-btn').forEach(b => {
+                    b.classList.remove('bg-neon-cyan', 'text-slate-900', 'font-bold');
+                    b.classList.add('text-slate-300');
+                });
+                e.target.classList.remove('text-slate-300');
+                e.target.classList.add('bg-neon-cyan', 'text-slate-900', 'font-bold');
+                setDateFilter(e.target.getAttribute('data-range'));
+                renderSection5();
+            });
+        });
+
+        [document.getElementById('dateFrom'), document.getElementById('dateTo')].forEach(input => {
+            input.addEventListener('change', () => {
+                document.querySelectorAll('.date-btn').forEach(b => {
+                    b.classList.remove('bg-neon-cyan', 'text-slate-900', 'font-bold');
+                    b.classList.add('text-slate-300');
+                });
+                dateFilter.start = Math.floor(new Date(document.getElementById('dateFrom').value).getTime()/1000);
+                dateFilter.end = Math.floor(new Date(document.getElementById('dateTo').value).getTime()/1000) + 86399; 
+                renderSection5();
+            });
+        });
+
+        // ==========================================
