@@ -426,6 +426,19 @@ function startFirebaseListeners(){
 }
 
 // ══════════════════════════════════════════════════════════
+//  NATURAL SORT HELPER
+// ══════════════════════════════════════════════════════════
+function naturalSort(a, b){
+  return a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'});
+}
+function sortedPortEntries(obj){
+  return Object.entries(obj).sort((a,b) => naturalSort(a[0], b[0]));
+}
+function sortedPortKeys(obj){
+  return Object.keys(obj).sort(naturalSort);
+}
+
+// ══════════════════════════════════════════════════════════
 //  RENDER ALL SECTIONS
 // ══════════════════════════════════════════════════════════
 function renderAll(){
@@ -438,7 +451,7 @@ function renderAll(){
 
 // ── S1: PORTFOLIO OVERVIEW ────────────────────────────────
 function renderS1(){
-  const portNames = Object.keys(portsData);
+  const portNames = sortedPortKeys(portsData);
   if(!portNames.length){
     ['s1-equity','s1-balance','s1-netdeposit','s1-profit','s1-growth','s1-maxdd']
       .forEach(id => { const el = document.getElementById(id); if(el) el.textContent='--'; });
@@ -524,7 +537,7 @@ function renderS3(){
   const tbody = document.getElementById('s3-tbody');
   if(!tbody) return;
 
-  const ports = Object.entries(portsData);
+  const ports = sortedPortEntries(portsData);
   if(!ports.length){
     tbody.innerHTML = '<tr><td colspan="9" class="no-data">ยังไม่มีข้อมูลจาก EA · รอการเชื่อมต่อ...</td></tr>';
     return;
@@ -632,7 +645,7 @@ function renderS4(){
     };
   }
 
-  let ports = Object.entries(portsData).map(([name, p]) => aggregatePort(name, p));
+  let ports = sortedPortEntries(portsData).map(([name, p]) => aggregatePort(name, p));
 
   if(!ports.length){
     tbody.innerHTML = '<tr><td colspan="10" class="no-data">ยังไม่มีข้อมูล</td></tr>';
@@ -678,7 +691,7 @@ function renderS5(){
   const container = document.getElementById('s5-accordion');
   if(!container) return;
 
-  const ports = Object.entries(portsData);
+  const ports = sortedPortEntries(portsData);
   if(!ports.length){
     container.innerHTML = '<div class="no-data" style="padding:30px">ยังไม่มีข้อมูลจาก EA · รอการเชื่อมต่อ...</div>';
     return;
