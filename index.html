@@ -526,8 +526,8 @@ function renderS3(){
       <td class="c-text1">${fmtVal(p.balance)}</td>
       <td class="${profitCls}">${fmtVal(p.todayProfit)}</td>
       <td class="${floatCls}">${fmtVal(p.floatPL)}</td>
-      <td class="c-amber">${fmtVal(p.todayMaxDD)}</td>
-      <td class="neg">${fmtPct(p.todayMaxDDPct)}</td>
+      <td class="c-amber">${fmtVal(p.todayMaxDD !== undefined ? p.todayMaxDD : (historyData[portName]?.[todayKeyTH()]?.dayMaxDD ?? 0))}</td>
+      <td class="neg">${fmtPct(p.todayMaxDDPct !== undefined ? p.todayMaxDDPct : (historyData[portName]?.[todayKeyTH()]?.dayMaxDDPct ?? 0))}</td>
     </tr>`;
   }).join('');
 }
@@ -679,21 +679,25 @@ function renderS5(){
     const chartId  = 'chart-'   + portName;
     const isOpen   = item.querySelector('.acc-body.open') !== null;
 
-    // ดึงค่าสถิติจาก history วันล่าสุด (ถูกต้องกว่า liveData)
+    // ดึงค่าสถิติจาก history วันล่าสุด
     const hist5    = historyData[portName] || {};
     const hKeys5   = Object.keys(hist5).sort();
     const lastH5   = hKeys5.length > 0 ? (hist5[hKeys5[hKeys5.length-1]] || {}) : {};
+
+    // s5net ต้องประกาศก่อน s5growth
+    const s5net     = lastH5.netDeposit   !== undefined ? lastH5.netDeposit   : (p.netDeposit  || 0);
+    const s5winrate = lastH5.winrate      !== undefined ? lastH5.winrate      : (p.winrate     || 0);
+    const s5trades  = lastH5.totalTrades  !== undefined ? lastH5.totalTrades  : (p.totalTrades || 0);
+
     // Total Profit = sum dayProfit ทุกวันตั้งแต่แรก
-    const s5profit = hKeys5.length > 0
+    const s5profit  = hKeys5.length > 0
       ? hKeys5.reduce((acc, k) => acc + (hist5[k].dayProfit || 0), 0)
       : (p.totalProfit || 0);
     const s5growth  = (s5net !== 0) ? (s5profit / Math.abs(s5net)) * 100 : (p.growthPct || 0);
-    const s5net     = lastH5.netDeposit   !== undefined ? lastH5.netDeposit   : (p.netDeposit  ||0);
-    const s5winrate = lastH5.winrate      !== undefined ? lastH5.winrate      : (p.winrate     ||0);
-    // Max DD = วันที่แย่สุดใน history ทั้งหมด
-    const s5maxDD    = hKeys5.reduce((mn,k)=>Math.min(mn, hist5[k].dayMaxDD||0), 0);
-    const s5maxDDPct = hKeys5.reduce((mn,k)=>Math.min(mn, hist5[k].dayMaxDDPct||0), 0);
-    const s5trades  = lastH5.totalTrades  !== undefined ? lastH5.totalTrades  : (p.totalTrades ||0);
+
+    // Max DD = หาวันที่ dayMaxDD ต่ำสุด (ถ้าไม่มี field นี้ในวันเก่า ใช้ 0)
+    const s5maxDD    = hKeys5.reduce((mn, k) => Math.min(mn, hist5[k].dayMaxDD    || 0), 0);
+    const s5maxDDPct = hKeys5.reduce((mn, k) => Math.min(mn, hist5[k].dayMaxDDPct || 0), 0);
 
     item.innerHTML = `
       <div class="acc-hdr" onclick="toggleAcc(this)">
