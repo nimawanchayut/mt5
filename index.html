@@ -523,10 +523,10 @@ function renderS4(){
 
   // ฟังก์ชัน: รวม dayProfit ในช่วงวันที่
   function aggregatePort(portName, liveData){
-    const hist = historyData[portName] || {};
+    const hist     = historyData[portName] || {};
     const histKeys = Object.keys(hist).sort();
 
-    // ถ้าไม่มี history เลย → ใช้ liveData
+    // ถ้าไม่มี history เลย → ใช้ liveData fallback
     if(histKeys.length === 0){
       return {
         name: portName, login: liveData.login,
@@ -537,86 +537,49 @@ function renderS4(){
         trades: liveData.totalTrades||0
       };
     }
-    // All / no filter → ใช้ค่าสะสมจาก history วันสุดท้าย + live equity
-    if(!fromKey && !toKey){
-      const lastKey = histKeys[histKeys.length-1];
-      const lh = hist[lastKey]||{};
-      return {
-        name: portName, login: liveData.login,
-        equity: liveData.equity||0, balance: liveData.balance||0,
-        netDeposit: lh.netDeposit||liveData.netDeposit||0,
-        profit: lh.totalProfit||liveData.totalProfit||0,
-        growthPct: lh.growthPct||liveData.growthPct||0,
-        winrate: lh.winrate||liveData.winrate||0,
-        maxDD: lh.maxDD||liveData.maxDD||0,
-        maxDDPct: lh.maxDDPct||liveData.maxDDPct||0,
-        trades: lh.totalTrades||liveData.totalTrades||0
-      };
-    }
-    // Today → ดึงจาก liveData.todayProfit โดยตรง
-    const todayKey2 = (()=>{const d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');})();
-    const isOnlyToday = fromKey === toKey && fromKey === todayKey2.replace(/^([0-9]{4})([0-9]{2})([0-9]{2})$/,'$1-$2-$3').replace(/-/g,'');
-    if(isOnlyToday){
-      return {
-        name: portName, login: liveData.login,
-        equity: liveData.equity||0, balance: liveData.balance||0,
-        netDeposit: liveData.netDeposit||0,
-        profit: liveData.todayProfit||0,
-        growthPct: (liveData.netDeposit||0)!==0 ? (liveData.todayProfit||0)/Math.abs(liveData.netDeposit)*100 : 0,
-        winrate: liveData.winrate||0,
-        maxDD: liveData.todayMaxDD||0, maxDDPct: liveData.todayMaxDDPct||0,
-        trades: liveData.totalTrades||0
-      };
-    }
 
-    // กรอง historyKeys ตาม range
+    // กรอง keys ตาม from/to range
     const filtered = histKeys.filter(k => {
-      if(fromKey && k < fromKey) return false;
-      if(toKey   && k > toKey)   return false;
+      const kFmt = k; // already YYYYMMDD
+      const fFmt = fromKey ? fromKey.replace(/-/g,'') : null;
+      const tFmt = toKey   ? toKey.replace(/-/g,'')   : null;
+      if(fFmt && kFmt < fFmt) return false;
+      if(tFmt && kFmt > tFmt) return false;
       return true;
     });
 
     if(filtered.length === 0){
-      // วันที่ที่เลือกไม่มีข้อมูล
       return { name: portName, login: liveData.login,
                equity:0, balance:0, netDeposit:0, profit:0,
                growthPct:0, winrate:0, maxDD:0, maxDDPct:0, trades:0 };
     }
 
-    // ใช้ค่าสะสม (cumulative) จากวันสุดท้ายใน range
-    // + equity/balance จาก live ถ้า toKey = today
+    // ใช้ค่าสะสมจากวันสุดท้ายใน range (cumulative ณ วันนั้น)
     const lastKey  = filtered[filtered.length - 1];
     const lastHist = hist[lastKey] || {};
-    const todayKey = (()=>{ const d=new Date(); return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); })();
-    const isToday  = !toKey || toKey.replace(/-/g,'') >= todayKey;
 
-    // sum dayProfit ในช่วง
-    let sumProfit = 0, sumTrades = 0, sumWins = 0, sumDeposit = 0;
+    // sum dayProfit + dayTrades ในช่วงที่เลือก
+    let sumProfit = 0, sumTrades = 0, wSum = 0;
     filtered.forEach(k => {
       const d = hist[k] || {};
-      sumProfit  += d.dayProfit  || 0;
-      sumTrades  += d.dayTrades  || 0;
-      sumDeposit += d.dayDeposit || 0;
+      sumProfit += d.dayProfit || 0;
+      sumTrades += d.dayTrades || 0;
+      wSum += (d.dayTrades||0) * (d.dayWinrate||0);
     });
-    const periodWinrate = (sumTrades > 0)
-      ? (filtered.reduce((a,k)=>{ const d=hist[k]||{}; return a+(d.dayTrades&&d.dayWinrate?d.dayTrades*d.dayWinrate:0); },0) / sumTrades)
-      : 0;
-
-    // cumulative ณ สิ้น range
-    const cumNet    = lastHist.netDeposit  || 0;
-    const cumGrowth = (cumNet !== 0) ? (lastHist.totalProfit||0) / Math.abs(cumNet) * 100 : 0;
+    const periodWinrate = sumTrades > 0 ? wSum / sumTrades : 0;
+    const cumNet = lastHist.netDeposit || liveData.netDeposit || 0;
 
     return {
-      name: portName,
-      login: liveData.login,
-      equity:     isToday ? (liveData.equity||0)   : (lastHist.balance||0),
-      balance:    isToday ? (liveData.balance||0)  : (lastHist.balance||0),
+      name:       portName,
+      login:      liveData.login,
+      equity:     lastHist.equity   || lastHist.balance || liveData.equity   || 0,
+      balance:    lastHist.balance  || liveData.balance  || 0,
       netDeposit: cumNet,
       profit:     sumProfit,
-      growthPct:  (cumNet !== 0) ? sumProfit / Math.abs(cumNet) * 100 : 0,
+      growthPct:  cumNet !== 0 ? sumProfit / Math.abs(cumNet) * 100 : 0,
       winrate:    periodWinrate,
-      maxDD:      lastHist.maxDD    || 0,
-      maxDDPct:   lastHist.maxDDPct || 0,
+      maxDD:      lastHist.maxDD    || liveData.maxDD    || 0,
+      maxDDPct:   lastHist.maxDDPct || liveData.maxDDPct || 0,
       trades:     sumTrades
     };
   }
@@ -769,7 +732,7 @@ function drawEquityChart(portName, chartId){
 
   // สี series — ต้องแยก colors array ออกมาให้ ApexCharts
   const seriesDef = [
-    { key:'balance', name:'Balance', color:'#60b8ff', fn: r=>r.balance||r.equity||0 },
+    { key:'balance', name:'Balance', color:'#60b8ff', fn: r=>r.equity||r.balance||0 },
     { key:'profit',  name:'Profit',  color:'#00e396', fn: r=>r.totalProfit||0 },
     { key:'maxdd',   name:'Max DD',  color:'#f5a623', fn: r=>r.maxDD||0 }
   ];
