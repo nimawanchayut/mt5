@@ -505,7 +505,7 @@ function renderS3(){
       <td class="${profitCls}">${fmtVal(p.todayProfit)}</td>
       <td class="${floatCls}">${fmtVal(p.floatPL)}</td>
       <td class="c-amber">${fmtVal(p.todayMaxDD)}</td>
-      <td class="c-amber">${fmtPct(p.todayMaxDDPct)}</td>
+      <td class="neg">${fmtPct(p.todayMaxDDPct)}</td>
     </tr>`;
   }).join('');
 }
@@ -646,7 +646,7 @@ function renderS4(){
       <td class="${colorClass(p.growthPct)}">${fmtPct(p.growthPct)}</td>
       <td class="c-orange">${p.winrate.toFixed(1)}%</td>
       <td class="c-amber">${fmtVal(p.maxDD)}</td>
-      <td class="c-amber">${fmtPct(p.maxDDPct)}</td>
+      <td class="neg">${fmtPct(p.maxDDPct)}</td>
       <td class="c-purple">${p.trades}</td>
     </tr>`).join('');
 }
@@ -766,65 +766,92 @@ function drawEquityChart(portName, chartId){
   const isDark= !document.documentElement.classList.contains('light');
 
   const keys = Object.keys(hist).sort();
-  const mkSeries = (label, color, fillOp, keyFn) => ({
-    name: label,
-    color,
-    data: keys.map(dk => {
-      const y=parseInt(dk.substring(0,4)),m=parseInt(dk.substring(4,6))-1,d=parseInt(dk.substring(6,8));
-      return { x: new Date(y,m,d).getTime(), y: parseFloat((keyFn(hist[dk])||0).toFixed(2)) };
-    })
-  });
 
-  let series = [];
-  if(state.balance) series.push(mkSeries('Balance','#60b8ff',0.25, r=>r.balance||r.equity||0));
-  if(state.profit)  series.push(mkSeries('Profit', '#00f0a0',0.20, r=>r.totalProfit||0));
-  if(state.maxdd)   series.push(mkSeries('Max DD', '#f5a623',0.15, r=>r.maxDD||0));
+  // สี series — ต้องแยก colors array ออกมาให้ ApexCharts
+  const seriesDef = [
+    { key:'balance', name:'Balance', color:'#60b8ff', fn: r=>r.balance||r.equity||0 },
+    { key:'profit',  name:'Profit',  color:'#00e396', fn: r=>r.totalProfit||0 },
+    { key:'maxdd',   name:'Max DD',  color:'#f5a623', fn: r=>r.maxDD||0 }
+  ];
 
-  // fallback จุดเดียวถ้าไม่มี history
-  if(series.length === 0 || keys.length === 0){
-    series = [{ name:'Balance', color:'#60b8ff', data:[{x:Date.now(), y:live.balance||0}] }];
+  const activeDefs = seriesDef.filter(d => state[d.key]);
+  let series = activeDefs.map(d => ({
+    name: d.name,
+    data: keys.length > 0
+      ? keys.map(dk => {
+          const y=parseInt(dk.substring(0,4)),m=parseInt(dk.substring(4,6))-1,dv=parseInt(dk.substring(6,8));
+          return { x: new Date(y,m,dv).getTime(), y: parseFloat((d.fn(hist[dk])||0).toFixed(2)) };
+        })
+      : [{ x: Date.now(), y: parseFloat((d.fn(live)||0).toFixed(2)) }]
+  }));
+  const colors = activeDefs.map(d => d.color);
+
+  if(series.length === 0){
+    series = [{ name:'Balance', data:[{x:Date.now(), y:live.balance||0}] }];
+    colors.push('#60b8ff');
   }
 
-  const axisColor = isDark ? '#4d6080' : '#8090b0';
+  const axisColor = isDark ? '#8a9ab5' : '#6070a0';
   const gridColor = isDark ? '#1e2733' : '#d0dae8';
-  const bgColor   = 'transparent';
 
   if(apexInstances[portName]){ apexInstances[portName].destroy(); }
 
   const options = {
     chart:{
-      type:'line', height:180, background:bgColor,
+      type:'area', height:200, background:'transparent',
       toolbar:{show:false},
-      animations:{enabled:true,easing:'easeinout',speed:500},
-      zoom:{enabled:false}
+      animations:{enabled:false},
+      zoom:{enabled:false},
+      fontFamily:'JetBrains Mono'
     },
+    colors,
     series,
-    stroke:{ curve:'smooth', width:[3,3,2] },
+    stroke:{ curve:'smooth', width:2.5 },
     fill:{
       type:'gradient',
-      gradient:{type:'vertical',shadeIntensity:1,opacityFrom:0.18,opacityTo:0,stops:[0,90]}
+      gradient:{
+        type:'vertical',
+        shadeIntensity:0,
+        opacityFrom:0.15,
+        opacityTo:0.01,
+        stops:[0,100]
+      }
     },
     markers:{
-      size:0,          // ซ่อน marker ตลอด
-      hover:{ size:5 } // แสดงเฉพาะตอน hover
+      size:0,
+      hover:{ size:6, sizeOffset:2 }
     },
+    dataLabels:{ enabled:false },
     xaxis:{
       type:'datetime',
-      labels:{style:{colors:axisColor,fontSize:'10px',fontFamily:'JetBrains Mono'}},
-      axisBorder:{color:gridColor}, axisTicks:{color:gridColor}
+      labels:{style:{colors:axisColor,fontSize:'11px'}},
+      axisBorder:{show:false}, axisTicks:{show:false}
     },
     yaxis:{
       labels:{
-        style:{colors:axisColor,fontSize:'10px',fontFamily:'JetBrains Mono'},
-        formatter: v => (isUSD?(v*USC_TO_USD):v).toLocaleString('en-US',{maximumFractionDigits:isUSD?2:0})
+        style:{colors:axisColor,fontSize:'11px'},
+        formatter: v => {
+          const val = isUSD ? v*USC_TO_USD : v;
+          return val.toLocaleString('en-US',{maximumFractionDigits:isUSD?2:0});
+        }
       }
     },
-    grid:{ borderColor:gridColor, strokeDashArray:3 },
-    legend:{ labels:{colors:axisColor}, fontFamily:'JetBrains Mono', fontSize:'11px' },
+    grid:{
+      borderColor: isDark ? '#1e2733' : '#d8e4f0',
+      strokeDashArray:4,
+      xaxis:{lines:{show:false}}
+    },
+    legend:{
+      show:true,
+      labels:{colors:axisColor},
+      fontSize:'11px',
+      markers:{width:10,height:10,radius:2}
+    },
     tooltip:{
-      theme: isDark ? 'dark' : 'light',
+      enabled:true,
       shared:true,
       intersect:false,
+      theme: isDark ? 'dark' : 'light',
       x:{ format:'dd MMM yyyy' },
       y:{ formatter: v => fmtVal(v)+' '+unitLabel() }
     },
