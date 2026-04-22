@@ -174,12 +174,12 @@
   <div>
     <div class="sec-head"><span class="sec-title">Portfolio Overview</span><div class="sec-line"></div></div>
     <div class="kpi-grid" style="margin-bottom:10px">
-      <div class="kpi"><div class="kpi-label">Total Equity</div><div class="kpi-val c-blue" id="s1-equity">--</div><div class="kpi-unit" id="s1-unit1">USC</div></div>
-      <div class="kpi"><div class="kpi-label">Total Balance</div><div class="kpi-val" id="s1-balance">--</div><div class="kpi-unit">USC</div></div>
-      <div class="kpi"><div class="kpi-label">Net Deposit</div><div class="kpi-val c-orange" id="s1-netdeposit">--</div><div class="kpi-unit">USC</div></div>
+      <div class="kpi"><div class="kpi-label">Total Equity</div><div class="kpi-val c-blue" id="s1-equity">--</div><div class="kpi-unit usc-label">USC</div></div>
+      <div class="kpi"><div class="kpi-label">Total Balance</div><div class="kpi-val" id="s1-balance">--</div><div class="kpi-unit usc-label">USC</div></div>
+      <div class="kpi"><div class="kpi-label">Net Deposit</div><div class="kpi-val c-orange" id="s1-netdeposit">--</div><div class="kpi-unit usc-label">USC</div></div>
     </div>
     <div class="kpi-grid">
-      <div class="kpi"><div class="kpi-label">Grand Total Profit</div><div class="kpi-val" id="s1-profit">--</div><div class="kpi-unit">USC</div></div>
+      <div class="kpi"><div class="kpi-label">Grand Total Profit</div><div class="kpi-val" id="s1-profit">--</div><div class="kpi-unit usc-label">USC</div></div>
       <div class="kpi"><div class="kpi-label">Overall Growth</div><div class="kpi-val" id="s1-growth">--</div><div class="kpi-unit">vs Net Deposit</div></div>
       <div class="kpi"><div class="kpi-label">Overall Max DD</div><div class="kpi-val" id="s1-maxdd">--</div><div class="kpi-unit">worst recorded</div></div>
     </div>
@@ -189,9 +189,9 @@
   <div>
     <div class="sec-head"><span class="sec-title">Realtime Summary</span><div class="sec-line"></div></div>
     <div class="rt-grid">
-      <div class="rt-card rt-blue"><div class="rt-label">Last 1 Hour</div><div class="rt-val" id="s2-1h">--</div><div class="rt-sub" id="s2-1h-sub">USC · -- trades</div></div>
-      <div class="rt-card rt-purple"><div class="rt-label">Last 6 Hours</div><div class="rt-val" id="s2-6h">--</div><div class="rt-sub" id="s2-6h-sub">USC · -- trades</div></div>
-      <div class="rt-card rt-green"><div class="rt-label">Today Profit</div><div class="rt-val" id="s2-today">--</div><div class="rt-sub" id="s2-today-sub">USC · -- trades</div></div>
+      <div class="rt-card rt-blue"><div class="rt-label">Last 1 Hour</div><div class="rt-val" id="s2-1h">--</div><div class="rt-sub" id="s2-1h-sub"><span class="usc-label">USC</span> · -- trades</div></div>
+      <div class="rt-card rt-purple"><div class="rt-label">Last 6 Hours</div><div class="rt-val" id="s2-6h">--</div><div class="rt-sub" id="s2-6h-sub"><span class="usc-label">USC</span> · -- trades</div></div>
+      <div class="rt-card rt-green"><div class="rt-label">Today Profit</div><div class="rt-val" id="s2-today">--</div><div class="rt-sub" id="s2-today-sub"><span class="usc-label">USC</span> · -- trades</div></div>
     </div>
   </div>
 
@@ -322,6 +322,10 @@ function toggleUnit(){
   pill.classList.toggle('right', isUSD);
   document.getElementById('lblUSC').className = 'unit-switch-lbl ' + (isUSD ? 'inactive' : 'active');
   document.getElementById('lblUSD').className = 'unit-switch-lbl ' + (isUSD ? 'active'   : 'inactive');
+  // อัพเดท label USC/USD ทุกจุด
+  document.querySelectorAll('.usc-label').forEach(el => {
+    el.textContent = isUSD ? 'USD' : 'USC';
+  });
   renderAll();
 }
 
@@ -489,16 +493,88 @@ function renderS3(){
 }
 
 // ── S4: ADVANCED PERFORMANCE GRID ────────────────────────
+// ดึงข้อมูลจาก historyData ตาม daterange + fallback ไป liveData
 function renderS4(){
   const tbody = document.getElementById('s4-tbody');
   if(!tbody) return;
 
-  let ports = Object.entries(portsData).map(([name, p]) => ({
-    name, login: p.login, equity: p.equity||0, balance: p.balance||0,
-    netDeposit: p.netDeposit||0, profit: p.totalProfit||0,
-    growthPct: p.growthPct||0, winrate: p.winrate||0,
-    maxDD: p.maxDD||0, maxDDPct: p.maxDDPct||0, trades: p.totalTrades||0
-  }));
+  const fromVal = document.getElementById('dFrom').value; // YYYY-MM-DD
+  const toVal   = document.getElementById('dTo').value;
+  const fromKey = fromVal ? fromVal.replace(/-/g,'') : null; // YYYYMMDD
+  const toKey   = toVal   ? toVal.replace(/-/g,'')   : null;
+
+  // ฟังก์ชัน: รวม dayProfit ในช่วงวันที่
+  function aggregatePort(portName, liveData){
+    const hist = historyData[portName] || {};
+    const histKeys = Object.keys(hist).sort();
+
+    // ถ้าไม่มี history หรือ range = All → ใช้ liveData โดยตรง
+    const useAllLive = (!fromKey && !toKey) || histKeys.length === 0;
+
+    if(useAllLive){
+      return {
+        name: portName, login: liveData.login,
+        equity: liveData.equity||0, balance: liveData.balance||0,
+        netDeposit: liveData.netDeposit||0, profit: liveData.totalProfit||0,
+        growthPct: liveData.growthPct||0, winrate: liveData.winrate||0,
+        maxDD: liveData.maxDD||0, maxDDPct: liveData.maxDDPct||0,
+        trades: liveData.totalTrades||0
+      };
+    }
+
+    // กรอง historyKeys ตาม range
+    const filtered = histKeys.filter(k => {
+      if(fromKey && k < fromKey) return false;
+      if(toKey   && k > toKey)   return false;
+      return true;
+    });
+
+    if(filtered.length === 0){
+      // วันที่ที่เลือกไม่มีข้อมูล
+      return { name: portName, login: liveData.login,
+               equity:0, balance:0, netDeposit:0, profit:0,
+               growthPct:0, winrate:0, maxDD:0, maxDDPct:0, trades:0 };
+    }
+
+    // ใช้ค่าสะสม (cumulative) จากวันสุดท้ายใน range
+    // + equity/balance จาก live ถ้า toKey = today
+    const lastKey  = filtered[filtered.length - 1];
+    const lastHist = hist[lastKey] || {};
+    const todayKey = (()=>{ const d=new Date(); return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0'); })();
+    const isToday  = !toKey || toKey.replace(/-/g,'') >= todayKey;
+
+    // sum dayProfit ในช่วง
+    let sumProfit = 0, sumTrades = 0, sumWins = 0, sumDeposit = 0;
+    filtered.forEach(k => {
+      const d = hist[k] || {};
+      sumProfit  += d.dayProfit  || 0;
+      sumTrades  += d.dayTrades  || 0;
+      sumDeposit += d.dayDeposit || 0;
+    });
+    const periodWinrate = (sumTrades > 0)
+      ? (filtered.reduce((a,k)=>{ const d=hist[k]||{}; return a+(d.dayTrades&&d.dayWinrate?d.dayTrades*d.dayWinrate:0); },0) / sumTrades)
+      : 0;
+
+    // cumulative ณ สิ้น range
+    const cumNet    = lastHist.netDeposit  || 0;
+    const cumGrowth = (cumNet !== 0) ? (lastHist.totalProfit||0) / Math.abs(cumNet) * 100 : 0;
+
+    return {
+      name: portName,
+      login: liveData.login,
+      equity:     isToday ? (liveData.equity||0)   : (lastHist.balance||0),
+      balance:    isToday ? (liveData.balance||0)  : (lastHist.balance||0),
+      netDeposit: cumNet,
+      profit:     sumProfit,
+      growthPct:  (cumNet !== 0) ? sumProfit / Math.abs(cumNet) * 100 : 0,
+      winrate:    periodWinrate,
+      maxDD:      lastHist.maxDD    || 0,
+      maxDDPct:   lastHist.maxDDPct || 0,
+      trades:     sumTrades
+    };
+  }
+
+  let ports = Object.entries(portsData).map(([name, p]) => aggregatePort(name, p));
 
   if(!ports.length){
     tbody.innerHTML = '<tr><td colspan="10" class="no-data">ยังไม่มีข้อมูล</td></tr>';
@@ -506,7 +582,6 @@ function renderS4(){
     return;
   }
 
-  // Sort
   ports.sort((a,b) => {
     let va = a[advSortKey], vb = b[advSortKey];
     if(typeof va === 'string') return advSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
@@ -621,7 +696,8 @@ function drawEquityChart(portName, chartId){
       const m = parseInt(dateKey.substring(4,6)) - 1;
       const d = parseInt(dateKey.substring(6,8));
       const ts = new Date(y, m, d).getTime();
-      return { x: ts, y: parseFloat((hist[dateKey].equity || 0).toFixed(2)) };
+      const val = hist[dateKey].balance || hist[dateKey].equity || 0;
+      return { x: ts, y: parseFloat(val.toFixed(2)) };
     });
   } else {
     // fallback: แสดงค่าปัจจุบัน
