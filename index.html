@@ -372,10 +372,10 @@ function toggleUnit(){
   renderAll();
 }
 
-function fmtVal(raw, decimals=2){
+function fmtVal(raw, decimals=2, noPlus=false){
   if(raw === null || raw === undefined || isNaN(raw)) return '--';
   const v = isUSD ? raw * USC_TO_USD : raw;
-  const sign = v > 0 ? '+' : '';
+  const sign = (!noPlus && v > 0) ? '+' : '';
   return sign + v.toLocaleString('en-US', {minimumFractionDigits: decimals, maximumFractionDigits: decimals});
 }
 function fmtPct(v, dec=2){ if(v===null||isNaN(v))return '--'; return (v>=0?'+':'')+Number(v).toFixed(dec)+'%'; }
@@ -488,9 +488,9 @@ function renderS1(){
 
   const growthPct = totalNet !== 0 ? (totalProfit / Math.abs(totalNet)) * 100 : 0;
 
-  setText('s1-equity',    fmtVal(totalEquity));
-  setText('s1-balance',   fmtVal(totalBalance));
-  setText('s1-netdeposit',fmtVal(totalNet));
+  setText('s1-equity',    fmtVal(totalEquity,2,true));
+  setText('s1-balance',   fmtVal(totalBalance,2,true));
+  setText('s1-netdeposit',fmtVal(totalNet,2,true));
 
   const profitEl = document.getElementById('s1-profit');
   if(profitEl){ profitEl.textContent = fmtVal(totalProfit); profitEl.className = 'kpi-val ' + colorClass(totalProfit); }
@@ -558,8 +558,8 @@ function renderS3(){
         <div class="server-col">${p.server || '--'}</div>
       </td>
       <td>${statusBadge}</td>
-      <td class="c-blue">${fmtVal(p.equity)}</td>
-      <td class="c-text1">${fmtVal(p.balance)}</td>
+      <td class="c-blue">${fmtVal(p.equity,2,true)}</td>
+      <td class="c-text1">${fmtVal(p.balance,2,true)}</td>
       <td class="${profitCls}">${fmtVal(p.todayProfit)}</td>
       <td class="${floatCls}">${fmtVal(p.floatPL)}</td>
       <td class="c-amber">${fmtVal(p.todayMaxDD !== undefined ? p.todayMaxDD : (historyData[portName]?.[todayKeyTH()]?.dayMaxDD ?? 0))}</td>
@@ -655,7 +655,9 @@ function renderS4(){
 
   ports.sort((a,b) => {
     let va = a[advSortKey], vb = b[advSortKey];
-    if(typeof va === 'string') return advSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    if(typeof va === 'string') return advSortAsc
+      ? va.localeCompare(vb, undefined, {numeric:true, sensitivity:'base'})
+      : vb.localeCompare(va, undefined, {numeric:true, sensitivity:'base'});
     return advSortAsc ? va - vb : vb - va;
   });
 
@@ -663,8 +665,8 @@ function renderS4(){
   tbody.innerHTML = ports.map(p => `
     <tr>
       <td><div class="adv-portname">${p.name}</div><div class="adv-portid">#${p.login||'--'}</div></td>
-      <td class="c-blue">${fmtVal(p.equity)}</td>
-      <td class="c-text1">${fmtVal(p.balance)}</td>
+      <td class="c-blue">${fmtVal(p.equity,2,true)}</td>
+      <td class="c-text1">${fmtVal(p.balance,2,true)}</td>
       <td class="c-yellow">${fmtVal(p.netDeposit)}</td>
       <td class="${colorClass(p.profit)}">${fmtVal(p.profit)}</td>
       <td class="${colorClass(p.growthPct)}">${fmtPct(p.growthPct)}</td>
@@ -748,11 +750,11 @@ function renderS5(){
         <div class="acc-quick">
           <div class="acc-q">
             <span class="acc-qlbl">Equity</span>
-            <span class="acc-qval c-blue">${fmtVal(p.equity)}</span>
+            <span class="acc-qval c-blue">${fmtVal(p.equity,2,true)}</span>
           </div>
           <div class="acc-q">
             <span class="acc-qlbl">Balance</span>
-            <span class="acc-qval c-text1">${fmtVal(p.balance)}</span>
+            <span class="acc-qval c-text1">${fmtVal(p.balance,2,true)}</span>
           </div>
           <div class="acc-q">
             <span class="acc-qlbl">Profit</span>
@@ -779,9 +781,9 @@ function renderS5(){
       </div>
       <div class="acc-body ${isOpen?'open':''}" id="${bodyId}" style="display:${isOpen?'block':'none'}">
         <div class="acc-stats">
-          <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue">${fmtVal(p.equity)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval c-text1">${fmtVal(p.balance)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow">${fmtVal(s5net)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue">${fmtVal(p.equity,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval c-text1">${fmtVal(p.balance,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow">${fmtVal(s5net,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
           <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval ${colorClass(p.floatPL)}">${fmtVal(p.floatPL)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
           <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval ${colorClass(s5profit)}">${fmtVal(s5profit)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
           <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval ${colorClass(s5growth)}">${fmtPct(s5growth)}</div><div class="acc-unit">%</div></div>
