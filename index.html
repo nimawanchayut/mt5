@@ -26,8 +26,28 @@
     --yellow:#c08000;--orange:#c05010;--purple:#7040c0;
   }
   html.light .date-input-wrap input[type="date"]{color-scheme:light}
-  .theme-btn{display:flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:12px;font-weight:600;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:4px 12px;border-radius:16px;cursor:pointer;transition:.2s;letter-spacing:.5px}
-  .theme-btn:hover{border-color:var(--blue);color:var(--blue)}
+  /* THEME SWITCH */
+  .theme-switch{
+    display:flex;align-items:center;
+    background:var(--bg0);border:1px solid var(--border2);
+    border-radius:20px;padding:3px;cursor:pointer;
+    position:relative;user-select:none;
+  }
+  .theme-switch-pill{
+    position:absolute;top:3px;left:3px;
+    width:40px;height:24px;background:var(--blue);
+    border-radius:16px;transition:transform .25s cubic-bezier(.4,0,.2,1);
+    z-index:0;
+  }
+  .theme-switch-pill.right{transform:translateX(40px)}
+  .theme-switch-lbl{
+    font-size:15px;width:40px;height:24px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:16px;position:relative;z-index:1;
+    transition:opacity .2s;
+  }
+  .theme-switch-lbl.active{opacity:1}
+  .theme-switch-lbl.inactive{opacity:.4}
   html{background:var(--bg0);color:var(--text1);font-family:var(--font-sans);font-size:15px;line-height:1.6}
   body{min-height:100vh;background:var(--bg0)}
   ::-webkit-scrollbar{width:4px;height:4px}
@@ -176,7 +196,11 @@
       <div class="live-badge"><span class="live-dot"></span>LIVE</div>
       <div class="clock" id="clock">--:--:--</div>
       <span class="conn-status" id="connStatus">⏳ เชื่อมต่อ...</span>
-      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙 Dark</button>
+      <div class="theme-switch" onclick="toggleTheme()" id="themeSwitch">
+        <div class="theme-switch-pill" id="themePill"></div>
+        <span class="theme-switch-lbl active"   id="lblDark">🌙</span>
+        <span class="theme-switch-lbl inactive" id="lblLight">☀️</span>
+      </div>
       <div class="unit-switch" onclick="toggleUnit()" id="unitSwitch">
         <div class="unit-switch-pill" id="unitPill"></div>
         <span class="unit-switch-lbl active" id="lblUSC">USC</span>
@@ -947,12 +971,15 @@ function setText(id, val){
 
 // ── THEME TOGGLE ─────────────────────────────────────────
 function toggleTheme(){
-  const html = document.documentElement;
-  const btn  = document.getElementById('themeBtn');
+  const html    = document.documentElement;
+  const pill    = document.getElementById('themePill');
+  const lblDark = document.getElementById('lblDark');
+  const lblLight= document.getElementById('lblLight');
   const isLight = html.classList.toggle('light');
-  btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+  pill.classList.toggle('right', isLight);
+  lblDark.className  = 'theme-switch-lbl ' + (isLight ? 'inactive' : 'active');
+  lblLight.className = 'theme-switch-lbl ' + (isLight ? 'active'   : 'inactive');
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
-  // re-render charts ด้วย theme ใหม่
   Object.keys(apexInstances).forEach(p => {
     if(apexInstances[p]){ apexInstances[p].destroy(); delete apexInstances[p]; }
   });
@@ -968,7 +995,12 @@ function toggleTheme(){
 // restore theme
 if(localStorage.getItem('theme') === 'light'){
   document.documentElement.classList.add('light');
-  document.getElementById('themeBtn').textContent = '☀️ Light';
+  const pill2 = document.getElementById('themePill');
+  if(pill2) pill2.classList.add('right');
+  const lD = document.getElementById('lblDark');
+  const lL = document.getElementById('lblLight');
+  if(lD) lD.className = 'theme-switch-lbl inactive';
+  if(lL) lL.className = 'theme-switch-lbl active';
 }
 setRange(document.querySelector('.qbtn.active'), 'week');
 startFirebaseListeners();
