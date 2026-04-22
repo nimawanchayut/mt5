@@ -431,12 +431,14 @@ function renderS1(){
     totalBalance += live.balance || 0;
 
     if(histKeys.length > 0){
-      // ดึงจาก history วันล่าสุด (ซึ่ง EA อัพเดทวันนี้แล้ว)
       const lastKey = histKeys[histKeys.length - 1];
       const lh = hist[lastKey] || {};
-      totalNet    += lh.netDeposit  || live.netDeposit  || 0;
-      totalProfit += lh.totalProfit || live.totalProfit || 0;
-      const ddPct  = lh.maxDDPct   || live.maxDDPct    || 0;
+      totalNet    += lh.netDeposit || live.netDeposit || 0;
+      // Grand Total Profit = sum dayProfit ทุกวันตั้งแต่แรก
+      let portProfit = 0;
+      histKeys.forEach(k => { portProfit += hist[k].dayProfit || 0; });
+      totalProfit += portProfit;
+      const ddPct = lh.maxDDPct || live.maxDDPct || 0;
       if(ddPct < worstDD) worstDD = ddPct;
     } else {
       totalNet    += live.netDeposit  || 0;
@@ -678,8 +680,11 @@ function renderS5(){
     const hist5    = historyData[portName] || {};
     const hKeys5   = Object.keys(hist5).sort();
     const lastH5   = hKeys5.length > 0 ? (hist5[hKeys5[hKeys5.length-1]] || {}) : {};
-    const s5profit  = lastH5.totalProfit  !== undefined ? lastH5.totalProfit  : (p.totalProfit ||0);
-    const s5growth  = lastH5.growthPct    !== undefined ? lastH5.growthPct    : (p.growthPct   ||0);
+    // Total Profit = sum dayProfit ทุกวันตั้งแต่แรก
+    const s5profit = hKeys5.length > 0
+      ? hKeys5.reduce((acc, k) => acc + (hist5[k].dayProfit || 0), 0)
+      : (p.totalProfit || 0);
+    const s5growth  = (s5net !== 0) ? (s5profit / Math.abs(s5net)) * 100 : (p.growthPct || 0);
     const s5net     = lastH5.netDeposit   !== undefined ? lastH5.netDeposit   : (p.netDeposit  ||0);
     const s5winrate = lastH5.winrate      !== undefined ? lastH5.winrate      : (p.winrate     ||0);
     const s5maxDDPct= lastH5.maxDDPct     !== undefined ? lastH5.maxDDPct     : (p.maxDDPct    ||0);
@@ -761,7 +766,7 @@ function drawEquityChart(portName, chartId){
   // สี series — ต้องแยก colors array ออกมาให้ ApexCharts
   const seriesDef = [
     { key:'balance', name:'Balance', color:'#60b8ff', fn: r=>r.balance||0 },
-    { key:'profit',  name:'Profit',  color:'#00e396', fn: r=>r.totalProfit||0 },
+    { key:'profit',  name:'Day Profit', color:'#00e396', fn: r=>r.dayProfit||0 },
     { key:'maxdd',   name:'Max DD',  color:'#f5a623', fn: r=>r.maxDD||0 }
   ];
 
