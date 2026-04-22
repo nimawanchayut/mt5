@@ -198,12 +198,12 @@
   @media(max-width:600px){
     /* topbar */
     .topbar{height:auto;padding:8px 12px}
-    .topbar-inner{flex-wrap:wrap;gap:6px}
-    .logo{font-size:17px}
-    .logo span:first-child{font-size:20px!important}
-    .topbar-right{gap:8px;flex-wrap:wrap}
-    .clock{font-size:12px;min-width:64px;padding:2px 7px}
-    .conn-status{font-size:10px;padding:2px 7px}
+    .topbar-inner{flex-wrap:nowrap;gap:6px;justify-content:space-between}
+    .logo{font-size:15px;white-space:nowrap}
+    .logo span:first-child{font-size:18px!important}
+    .topbar-right{gap:6px;flex-wrap:nowrap;flex-shrink:0}
+    .clock{font-size:11px;min-width:58px;padding:2px 6px}
+    .conn-status{font-size:10px;padding:2px 6px;white-space:nowrap}
 
     /* content */
     .content{padding:10px 10px;gap:14px}
