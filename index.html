@@ -84,6 +84,9 @@
 
   /* KPI */
   .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .kpi-grid-6{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:1024px){.kpi-grid-6{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:600px){.kpi-grid-6{grid-template-columns:repeat(2,1fr)}}
   .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px 22px}
   .kpi-label{font-size:13px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase}
   .kpi-val{font-size:24px;font-weight:600;font-family:var(--font-mono);line-height:1}
@@ -296,12 +299,10 @@
   <!-- S1: PORTFOLIO OVERVIEW -->
   <div>
     <div class="sec-head"><span class="sec-title">Portfolio Overview</span><div class="sec-line"></div></div>
-    <div class="kpi-grid" style="margin-bottom:10px">
+    <div class="kpi-grid kpi-grid-6">
       <div class="kpi"><div class="kpi-label">Total Equity</div><div class="kpi-val c-blue" id="s1-equity">--</div><div class="kpi-unit usc-label">USC</div></div>
       <div class="kpi"><div class="kpi-label">Total Balance</div><div class="kpi-val" id="s1-balance">--</div><div class="kpi-unit usc-label">USC</div></div>
       <div class="kpi"><div class="kpi-label">Net Deposit</div><div class="kpi-val c-orange" id="s1-netdeposit">--</div><div class="kpi-unit usc-label">USC</div></div>
-    </div>
-    <div class="kpi-grid">
       <div class="kpi"><div class="kpi-label">Grand Total Profit</div><div class="kpi-val" id="s1-profit">--</div><div class="kpi-unit usc-label">USC</div></div>
       <div class="kpi"><div class="kpi-label">Overall Growth</div><div class="kpi-val" id="s1-growth">--</div><div class="kpi-unit">vs Net Deposit</div></div>
       <div class="kpi"><div class="kpi-label">Overall Max DD</div><div class="kpi-val c-red" id="s1-maxdd">--</div><div class="kpi-unit">worst recorded</div></div>
@@ -581,25 +582,16 @@ function renderS1(){
 
 // ── S2: REALTIME SUMMARY ─────────────────────────────────
 function renderS2(){
-  const nowGMT = Math.floor(Date.now()/1000) - 7*3600; // convert back to GMT
-  const t1h = nowGMT - 3600;
-  const t6h = nowGMT - 21600;
-  // today start in GMT = midnight TH (UTC+7) = UTC-17:00 prev day → midnight TH
-  const d = new Date(Date.now() + 7*3600*1000);
-  const midnightTHms = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()).getTime();
-  const todayStartGMT = Math.floor(midnightTHms/1000) - 7*3600;
-
+  // EA คำนวณ profit1h, profit6h, todayProfit มาให้แล้ว → แค่ sum ทุกพอร์ต
   let profit1h=0, profit6h=0, profitToday=0;
-  let count1h=0, count6h=0, countToday=0;
+  let count1h=0,  count6h=0,  countToday=0;
 
   Object.values(portsData).forEach(p => {
-    const ts = p.tsGMT || 0;
-    if(ts >= t1h)       { profit1h    += p.todayProfit||0; count1h++;    }
-    if(ts >= t6h)       { profit6h    += p.todayProfit||0; count6h++;    }
-    if(ts >= todayStartGMT){ profitToday += p.todayProfit||0; countToday++; }
+    if(p.profit1h    !== undefined){ profit1h    += p.profit1h    || 0; count1h++;    }
+    if(p.profit6h    !== undefined){ profit6h    += p.profit6h    || 0; count6h++;    }
+    if(p.todayProfit !== undefined){ profitToday += p.todayProfit || 0; countToday++; }
   });
 
-  // S2 ใช้ค่ารวม todayProfit จากทุกพอร์ตที่รายงานมาใน window นั้น
   setRtCard('s2-1h',    's2-1h-sub',    profit1h,    count1h);
   setRtCard('s2-6h',    's2-6h-sub',    profit6h,    count6h);
   setRtCard('s2-today', 's2-today-sub', profitToday, countToday);
