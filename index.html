@@ -6,152 +6,60 @@
 <title>EA MT5 Dashboard</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
-
   *{box-sizing:border-box;margin:0;padding:0}
-
   :root{
-    --bg0:#0a0d12;
-    --bg1:#0f1318;
-    --bg2:#141920;
-    --bg3:#1a2130;
-    --border:#1e2733;
-    --border2:#253040;
-    --text1:#e2eaf5;
-    --text2:#8a9ab5;
-    --text3:#4d6080;
-    --green:#00d68f;
-    --green-dim:#003d28;
-    --green-bg:#001a12;
-    --red:#ff4d6a;
-    --red-dim:#4d0015;
-    --red-bg:#1a000a;
-    --blue:#3d9eff;
-    --blue-dark:#1a5fa8;
-    --blue-dim:#0a2a4d;
-    --blue-bg:#020f1e;
-    --yellow:#f5c842;
-    --orange:#ff8c2a;
-    --purple:#b06eff;
-    --accent:#3d9eff;
-    --font-mono:'JetBrains Mono',monospace;
-    --font-sans:'Inter',sans-serif;
+    --bg0:#0a0d12;--bg1:#0f1318;--bg2:#141920;--bg3:#1a2130;
+    --border:#1e2733;--border2:#253040;
+    --text1:#e2eaf5;--text2:#8a9ab5;--text3:#4d6080;
+    --green:#00d68f;--green-dim:#003d28;--green-bg:#001a12;
+    --red:#ff4d6a;--blue:#3d9eff;--blue-dim:#0a2a4d;
+    --yellow:#f5c842;--orange:#ff8c2a;--purple:#b06eff;
+    --font-mono:'JetBrains Mono',monospace;--font-sans:'Inter',sans-serif;
   }
-
   html{background:var(--bg0);color:var(--text1);font-family:var(--font-sans);font-size:15px;line-height:1.6}
   body{min-height:100vh;background:var(--bg0)}
-
-  /* SCROLLBAR */
   ::-webkit-scrollbar{width:4px;height:4px}
   ::-webkit-scrollbar-track{background:var(--bg1)}
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
   /* TOP BAR */
-  .topbar{
-    position:sticky;top:0;z-index:100;
-    background:var(--bg1);
-    border-bottom:1px solid var(--border);
-    padding:0 20px;
-    height:64px;
-    display:flex;align-items:center;justify-content:center;
-    backdrop-filter:blur(10px);
-  }
-  .topbar-inner{
-    width:100%;max-width:1280px;
-    display:flex;align-items:center;justify-content:space-between;
-  }
-  .logo{
-    font-family:var(--font-mono);font-size:24px;font-weight:600;
-    color:var(--blue);letter-spacing:2px;
-    display:flex;align-items:center;gap:10px;
-  }
-  .logo-robot{font-size:26px;line-height:1}
-  .logo-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:blink 1.8s infinite}
-  @keyframes blink{0%,100%{opacity:1;box-shadow:0 0 6px var(--green)}50%{opacity:.3;box-shadow:none}}
+  .topbar{position:sticky;top:0;z-index:100;background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;height:64px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
+  .topbar-inner{width:100%;max-width:1280px;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-family:var(--font-mono);font-size:24px;font-weight:600;color:var(--blue);letter-spacing:2px;display:flex;align-items:center;gap:10px}
   .logo span{color:var(--blue)}
-
+  @keyframes blink{0%,100%{opacity:1;box-shadow:0 0 6px var(--green)}50%{opacity:.3;box-shadow:none}}
   .topbar-right{display:flex;align-items:center;gap:12px}
-  .live-badge{
-    display:flex;align-items:center;gap:5px;
-    font-size:12px;color:var(--green);
-    font-family:var(--font-mono);
-  }
+  .live-badge{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--green);font-family:var(--font-mono)}
   .live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.8s infinite}
-  .clock{
-    font-family:var(--font-mono);font-size:14px;
-    color:var(--text1);background:var(--bg2);
-    border:1px solid var(--border2);
-    padding:3px 10px;border-radius:4px;
-    letter-spacing:1px;min-width:80px;text-align:center;
-  }
-  /* UNIT TOGGLE SWITCH */
-  .unit-switch{
-    display:flex;align-items:center;
-    background:var(--bg0);border:1px solid var(--border2);
-    border-radius:20px;padding:3px;gap:0;cursor:pointer;
-    position:relative;user-select:none;
-  }
-  .unit-switch-pill{
-    position:absolute;top:3px;left:3px;
-    width:50px;height:24px;background:var(--blue);
-    border-radius:16px;transition:transform .25s cubic-bezier(.4,0,.2,1);
-    z-index:0;
-  }
+  .clock{font-family:var(--font-mono);font-size:14px;color:var(--text1);background:var(--bg2);border:1px solid var(--border2);padding:3px 10px;border-radius:4px;letter-spacing:1px;min-width:80px;text-align:center}
+  .unit-switch{display:flex;align-items:center;background:var(--bg0);border:1px solid var(--border2);border-radius:20px;padding:3px;cursor:pointer;position:relative;user-select:none}
+  .unit-switch-pill{position:absolute;top:3px;left:3px;width:50px;height:24px;background:var(--blue);border-radius:16px;transition:transform .25s cubic-bezier(.4,0,.2,1);z-index:0}
   .unit-switch-pill.right{transform:translateX(50px)}
-  .unit-switch-lbl{
-    font-family:var(--font-mono);font-size:13px;font-weight:600;
-    width:50px;height:24px;display:flex;align-items:center;justify-content:center;
-    border-radius:16px;position:relative;z-index:1;
-    transition:color .2s;letter-spacing:.5px;
-  }
+  .unit-switch-lbl{font-family:var(--font-mono);font-size:13px;font-weight:600;width:50px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:16px;position:relative;z-index:1;transition:color .2s;letter-spacing:.5px}
   .unit-switch-lbl.active{color:#fff}
   .unit-switch-lbl.inactive{color:var(--text3)}
-
-  /* IDLE ORANGE */
-  .badge-idle{
-    background:#1a0d00;color:#ff8c2a;
-    border:1px solid #ff8c2a35;
-    padding:3px 9px;border-radius:10px;font-size:13px;white-space:nowrap;
-  }
+  .conn-status{font-family:var(--font-mono);font-size:11px;padding:3px 9px;border-radius:4px;border:1px solid var(--border2);color:var(--text3)}
+  .conn-status.ok{color:var(--green);border-color:#00d68f30;background:var(--green-bg)}
+  .conn-status.err{color:var(--red);border-color:#ff4d6a30;background:#1a000a}
 
   /* CONTENT */
-  .content{
-    padding:20px 32px;
-    display:flex;flex-direction:column;gap:20px;
-    max-width:1280px;
-    margin:0 auto;
-    width:100%;
-    box-sizing:border-box;
-  }
+  .content{padding:20px 32px;display:flex;flex-direction:column;gap:20px;max-width:1280px;margin:0 auto;width:100%;box-sizing:border-box}
 
-  /* SECTION HEADER */
-  .sec-head{
-    display:flex;align-items:center;gap:10px;
-    margin-bottom:12px;
-  }
-  .sec-title{
-    font-family:var(--font-mono);font-size:13px;font-weight:600;
-    color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;
-    white-space:nowrap;
-  }
+  /* SECTION */
+  .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .sec-title{font-family:var(--font-mono);font-size:13px;font-weight:600;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap}
   .sec-line{flex:1;height:1px;background:var(--border)}
 
-  /* KPI CARDS */
+  /* KPI */
   .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .kpi{
-    background:var(--bg2);border:1px solid var(--border);border-radius:6px;
-    padding:20px 22px;
-  }
+  .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:20px 22px}
   .kpi-label{font-size:13px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase}
   .kpi-val{font-size:24px;font-weight:600;font-family:var(--font-mono);line-height:1}
   .kpi-unit{font-size:13px;color:var(--text3);margin-top:4px;font-family:var(--font-mono)}
-  /* color classes with !important defined below */
 
   /* RT CARDS */
   .rt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  .rt-card{
-    background:var(--bg2);border:1px solid var(--border);border-radius:6px;
-    padding:18px 20px;position:relative;overflow:hidden;
-  }
+  .rt-card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:18px 20px;position:relative;overflow:hidden}
   .rt-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
   .rt-blue::before{background:var(--blue)}
   .rt-purple::before{background:#a06eff}
@@ -160,146 +68,81 @@
   .rt-val{font-size:26px;font-weight:600;font-family:var(--font-mono);color:var(--green)}
   .rt-sub{font-size:13px;color:var(--text3);margin-top:5px;font-family:var(--font-mono)}
 
-  /* PORT TABLE - S3 */
+  /* TABLE S3 */
   .table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
   .tbl{width:100%;border-collapse:collapse;font-size:14px;font-family:var(--font-mono)}
   .tbl thead tr{background:var(--bg0)}
-  .tbl th{
-    padding:14px 16px;text-align:right;
-    color:var(--text3);font-size:13px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;
-    border-bottom:1px solid var(--border);white-space:nowrap;
-  }
+  .tbl th{padding:14px 16px;text-align:right;color:var(--text3);font-size:13px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border);white-space:nowrap}
   .tbl th:first-child,.tbl th:nth-child(2),.tbl th:nth-child(3){text-align:left}
   .tbl td{padding:14px 16px;text-align:right;border-bottom:1px solid var(--bg0);color:var(--text1)}
   .tbl td:first-child,.tbl td:nth-child(2),.tbl td:nth-child(3){text-align:left}
   .tbl tbody tr:hover td{background:var(--bg3)}
   .tbl tbody tr:last-child td{border-bottom:none}
-
   .port-name-col{font-size:14px;font-weight:600;color:var(--text1)}
   .port-id-col{font-size:13px;color:var(--text3);margin-top:2px}
   .server-col{font-size:13px;color:var(--text2)}
-  .badge-live{
-    background:var(--green-bg);color:var(--green);
-    border:1px solid #00d68f30;
-    padding:3px 9px;border-radius:10px;font-size:13px;
-    display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
-  }
-  .pos{color:var(--green)!important}
-  .neg{color:var(--red)!important}
-  .neu{color:var(--text2)!important}
-  .c-blue{color:var(--blue)!important}
-  .c-green{color:var(--green)!important}
-  .c-red{color:var(--red)!important}
-  .c-yellow{color:var(--yellow)!important}
-  .c-orange{color:var(--orange)!important}
-  .c-purple{color:var(--purple)!important}
-  .c-blue-dark{color:var(--blue-dark)!important}
+  .badge-live{background:var(--green-bg);color:var(--green);border:1px solid #00d68f30;padding:3px 9px;border-radius:10px;font-size:13px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+  .badge-idle{background:#1a0d00;color:#ff8c2a;border:1px solid #ff8c2a35;padding:3px 9px;border-radius:10px;font-size:13px;white-space:nowrap}
+
+  /* COLOR CLASSES */
+  .pos{color:var(--green)!important}.neg{color:var(--red)!important}.neu{color:var(--text2)!important}
+  .c-blue{color:var(--blue)!important}.c-green{color:var(--green)!important}.c-red{color:var(--red)!important}
+  .c-yellow{color:var(--yellow)!important}.c-orange{color:var(--orange)!important}.c-purple{color:var(--purple)!important}
   .c-text1{color:var(--text1)!important}
 
-  /* ADVANCED GRID - S4 */
+  /* ADV GRID */
   .adv-box{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
-  .adv-toolbar{
-    padding:10px 14px;border-bottom:1px solid var(--border);
-    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;
-    background:var(--bg1);
-  }
+  .adv-toolbar{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--bg1)}
   .date-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .qbtn{
-    font-family:var(--font-mono);font-size:13px;font-weight:500;
-    background:var(--bg3);border:1px solid var(--border2);
-    color:var(--text2);padding:4px 9px;border-radius:4px;cursor:pointer;
-    transition:.15s;white-space:nowrap;
-  }
+  .qbtn{font-family:var(--font-mono);font-size:13px;font-weight:500;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:4px 9px;border-radius:4px;cursor:pointer;transition:.15s;white-space:nowrap}
   .qbtn:hover{border-color:var(--blue);color:var(--blue)}
   .qbtn.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
-  .date-sep{color:var(--border2);font-size:12px;margin:0 2px}
-  .date-input-wrap{
-    display:flex;align-items:center;gap:4px;
-    background:var(--bg0);border:1px solid var(--border2);
-    border-radius:4px;padding:3px 8px;
-  }
-  .date-input-wrap input[type="date"]{
-    background:transparent;border:none;outline:none;
-    color:var(--text2);font-family:var(--font-mono);font-size:13px;
-    width:110px;cursor:pointer;
-    color-scheme:dark;
-  }
-  .cal-btn{
-    background:none;border:none;cursor:pointer;
-    font-size:13px;line-height:1;padding:0;opacity:.7;
-  }
-  .cal-btn:hover{opacity:1}
-
+  .date-input-wrap{display:flex;align-items:center;gap:4px;background:var(--bg0);border:1px solid var(--border2);border-radius:4px;padding:3px 8px}
+  .date-input-wrap input[type="date"]{background:transparent;border:none;outline:none;color:var(--text2);font-family:var(--font-mono);font-size:13px;width:110px;cursor:pointer;color-scheme:dark}
   .adv-tbl{width:100%;border-collapse:collapse;font-size:13px;font-family:var(--font-mono)}
   .adv-tbl thead tr{background:var(--bg0)}
-  .adv-tbl th{
-    padding:13px 14px;text-align:right;
-    color:var(--text3);font-size:12px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;
-    border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;
-  }
+  .adv-tbl th{padding:13px 14px;text-align:right;color:var(--text3);font-size:12px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border);cursor:pointer;white-space:nowrap;user-select:none}
   .adv-tbl th:first-child{text-align:left}
   .adv-tbl th:hover{color:var(--blue)}
   .adv-tbl td{padding:13px 14px;text-align:right;border-bottom:1px solid var(--bg0);color:var(--text1)}
   .adv-tbl td:first-child{text-align:left}
   .adv-tbl tbody tr:hover td{background:var(--bg3)}
   .adv-tbl tbody tr:last-child td{border-bottom:none}
-  .sort-icon{color:var(--blue);font-size:8px;margin-left:2px}
+  .sort-icon{color:var(--blue);font-size:10px;margin-left:2px}
   .adv-portname{font-size:13px;font-weight:600;color:var(--text1)}
   .adv-portid{font-size:12px;color:var(--text3);margin-top:1px}
 
-  /* ACCORDION - S5 */
+  /* ACCORDION */
   .acc-box{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
   .acc-item{border-bottom:1px solid var(--border)}
   .acc-item:last-child{border-bottom:none}
-  .acc-hdr{
-    padding:14px 18px;display:flex;align-items:center;
-    justify-content:space-between;cursor:pointer;gap:10px;
-    transition:background .15s;
-  }
+  .acc-hdr{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:10px;transition:background .15s}
   .acc-hdr:hover{background:var(--bg3)}
   .acc-left{display:flex;align-items:center;gap:10px;min-width:0}
   .acc-portname{font-size:15px;font-weight:600;color:var(--text1);font-family:var(--font-mono);white-space:nowrap}
   .acc-portid{font-size:13px;color:var(--text3);font-family:var(--font-mono)}
-  .acc-server{
-    background:var(--bg3);border:1px solid var(--border2);
-    color:var(--text2);padding:2px 8px;border-radius:3px;font-size:12px;
-    font-family:var(--font-mono);white-space:nowrap;
-  }
-
+  .acc-server{background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:2px 8px;border-radius:3px;font-size:12px;font-family:var(--font-mono);white-space:nowrap}
   .acc-quick{display:flex;align-items:center;gap:16px;flex-shrink:0}
   .acc-q{display:flex;flex-direction:column;align-items:flex-end}
   .acc-qlbl{font-size:12px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase}
   .acc-qval{font-size:13px;font-weight:600;font-family:var(--font-mono);margin-top:1px}
   .acc-arrow{color:var(--text3);font-size:12px;flex-shrink:0;margin-left:6px;transition:transform .2s}
   .acc-arrow.open{transform:rotate(180deg)}
-
   .acc-body{display:none;padding:14px 16px 16px;border-top:1px solid var(--border);background:var(--bg1)}
   .acc-body.open{display:block}
   .acc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
   .acc-stat{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:10px 12px}
   .acc-slbl{font-size:12px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
   .acc-sval{font-size:16px;font-weight:600;font-family:var(--font-mono)}
+  #apexcharts-wrapper{background:var(--bg2);border:1px solid var(--border);border-radius:5px;margin-top:0}
 
-  .chart-placeholder{
-    background:var(--bg2);border:1px solid var(--border);border-radius:5px;
-    height:130px;display:flex;align-items:flex-end;padding:10px 12px 0;
-    overflow:hidden;position:relative;gap:3px;
-  }
-  .chart-label{position:absolute;top:8px;left:12px;font-size:12px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px}
-  .bar{border-top:2px solid var(--blue);background:linear-gradient(to top,#3d9eff08,#3d9eff22);border-radius:2px 2px 0 0;flex:1;transition:.3s}
+  /* LOADING SKELETON */
+  .skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--border2) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:1em;display:inline-block;min-width:80px}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .no-data{color:var(--text3);font-size:12px;font-family:var(--font-mono);text-align:center;padding:20px}
 
-  /* responsive */
-  @media(max-width:860px){
-    .kpi-grid{grid-template-columns:repeat(2,1fr)}
-    .rt-grid{grid-template-columns:1fr}
-    .acc-quick{gap:8px}
-    .acc-quick .acc-q:nth-child(n+4){display:none}
-  }
-  @media(max-width:600px){
-    .kpi-grid{grid-template-columns:repeat(2,1fr)}
-    .topbar{padding:0 12px}
-    .content{padding:12px}
-  }
+  @media(max-width:860px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.rt-grid{grid-template-columns:1fr}.acc-quick{gap:8px}.acc-quick .acc-q:nth-child(n+4){display:none}}
+  @media(max-width:600px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.topbar{padding:0 12px}.content{padding:12px}}
 </style>
 </head>
 <body>
@@ -308,15 +151,13 @@
 <div class="topbar">
   <div class="topbar-inner">
     <div class="logo">
-      <span class="logo-robot">🤖</span>
+      <span style="font-size:26px;line-height:1">🤖</span>
       EA MT5 <span>Dashboard</span>
     </div>
     <div class="topbar-right">
-      <div class="live-badge">
-        <span class="live-dot"></span>
-        LIVE
-      </div>
+      <div class="live-badge"><span class="live-dot"></span>LIVE</div>
       <div class="clock" id="clock">--:--:--</div>
+      <span class="conn-status" id="connStatus">⏳ เชื่อมต่อ...</span>
       <div class="unit-switch" onclick="toggleUnit()" id="unitSwitch">
         <div class="unit-switch-pill" id="unitPill"></div>
         <span class="unit-switch-lbl active" id="lblUSC">USC</span>
@@ -329,162 +170,49 @@
 <div style="width:100%;background:var(--bg0)">
 <div class="content">
 
-  <!-- ── S1: PORTFOLIO OVERVIEW ── -->
+  <!-- S1: PORTFOLIO OVERVIEW -->
   <div>
-    <div class="sec-head">
-      <span class="sec-title">Portfolio Overview</span>
-      <div class="sec-line"></div>
-    </div>
+    <div class="sec-head"><span class="sec-title">Portfolio Overview</span><div class="sec-line"></div></div>
     <div class="kpi-grid" style="margin-bottom:10px">
-      <div class="kpi">
-        <div class="kpi-label">Total Equity</div>
-        <div class="kpi-val c-blue" data-usc="1284320">1,284,320</div>
-        <div class="kpi-unit" id="unit-lbl-1">USC</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Total Balance</div>
-        <div class="kpi-val" data-usc="1251880">1,251,880</div>
-        <div class="kpi-unit">USC</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Net Deposit</div>
-        <div class="kpi-val c-orange" data-usc="980000">980,000</div>
-        <div class="kpi-unit">USC</div>
-      </div>
+      <div class="kpi"><div class="kpi-label">Total Equity</div><div class="kpi-val c-blue" id="s1-equity">--</div><div class="kpi-unit" id="s1-unit1">USC</div></div>
+      <div class="kpi"><div class="kpi-label">Total Balance</div><div class="kpi-val" id="s1-balance">--</div><div class="kpi-unit">USC</div></div>
+      <div class="kpi"><div class="kpi-label">Net Deposit</div><div class="kpi-val c-orange" id="s1-netdeposit">--</div><div class="kpi-unit">USC</div></div>
     </div>
     <div class="kpi-grid">
-      <div class="kpi">
-        <div class="kpi-label">Grand Total Profit</div>
-        <div class="kpi-val c-green" data-usc="271880">+271,880</div>
-        <div class="kpi-unit">USC</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Overall Growth</div>
-        <div class="kpi-val c-green">+27.74%</div>
-        <div class="kpi-unit">vs Net Deposit</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label">Overall Max DD</div>
-        <div class="kpi-val c-red">-8.32%</div>
-        <div class="kpi-unit">worst day</div>
-      </div>
+      <div class="kpi"><div class="kpi-label">Grand Total Profit</div><div class="kpi-val" id="s1-profit">--</div><div class="kpi-unit">USC</div></div>
+      <div class="kpi"><div class="kpi-label">Overall Growth</div><div class="kpi-val" id="s1-growth">--</div><div class="kpi-unit">vs Net Deposit</div></div>
+      <div class="kpi"><div class="kpi-label">Overall Max DD</div><div class="kpi-val" id="s1-maxdd">--</div><div class="kpi-unit">worst recorded</div></div>
     </div>
   </div>
 
-  <!-- ── S2: REALTIME SUMMARY ── -->
+  <!-- S2: REALTIME SUMMARY -->
   <div>
-    <div class="sec-head">
-      <span class="sec-title">Realtime Summary</span>
-      <div class="sec-line"></div>
-    </div>
+    <div class="sec-head"><span class="sec-title">Realtime Summary</span><div class="sec-line"></div></div>
     <div class="rt-grid">
-      <div class="rt-card rt-blue">
-        <div class="rt-label">Last 1 Hour</div>
-        <div class="rt-val" data-usc="3240">+3,240</div>
-        <div class="rt-sub">USC · 12 trades closed</div>
-      </div>
-      <div class="rt-card rt-purple">
-        <div class="rt-label">Last 6 Hours</div>
-        <div class="rt-val" data-usc="11580">+11,580</div>
-        <div class="rt-sub">USC · 47 trades closed</div>
-      </div>
-      <div class="rt-card rt-green">
-        <div class="rt-label">Today Profit</div>
-        <div class="rt-val" data-usc="24870">+24,870</div>
-        <div class="rt-sub">USC · 134 trades closed</div>
-      </div>
+      <div class="rt-card rt-blue"><div class="rt-label">Last 1 Hour</div><div class="rt-val" id="s2-1h">--</div><div class="rt-sub" id="s2-1h-sub">USC · -- trades</div></div>
+      <div class="rt-card rt-purple"><div class="rt-label">Last 6 Hours</div><div class="rt-val" id="s2-6h">--</div><div class="rt-sub" id="s2-6h-sub">USC · -- trades</div></div>
+      <div class="rt-card rt-green"><div class="rt-label">Today Profit</div><div class="rt-val" id="s2-today">--</div><div class="rt-sub" id="s2-today-sub">USC · -- trades</div></div>
     </div>
   </div>
 
-  <!-- ── S3: REALTIME BY PORT ── -->
+  <!-- S3: REALTIME BY PORT -->
   <div>
-    <div class="sec-head">
-      <span class="sec-title">Realtime By Port (Today)</span>
-      <div class="sec-line"></div>
-    </div>
+    <div class="sec-head"><span class="sec-title">Realtime By Port (Today)</span><div class="sec-line"></div></div>
     <div class="table-wrap">
       <table class="tbl">
-        <thead>
-          <tr>
-            <th>Port</th>
-            <th>Port ID / Server</th>
-            <th>Status</th>
-            <th>Equity</th>
-            <th>Balance</th>
-            <th>Today Profit</th>
-            <th>Float</th>
-            <th>Max DD</th>
-            <th>Max DD%</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span class="port-name-col">Port 1</span></td>
-            <td>
-              <div class="port-id-col">#12345678</div>
-              <div class="server-col">ICMarkets-Live01</div>
-            </td>
-            <td><span class="badge-live"><span class="live-dot"></span>Live</span></td>
-            <td class="c-blue" data-usc="142310">142,310</td>
-            <td class="c-text1" data-usc="140000">140,000</td>
-            <td class="pos" data-usc="2840">+2,840</td>
-            <td class="pos" data-usc="1230">+1,230</td>
-            <td class="neg" data-usc="-3200">-3,200</td>
-            <td class="neg">-2.29%</td>
-          </tr>
-          <tr>
-            <td><span class="port-name-col">Port 2</span></td>
-            <td>
-              <div class="port-id-col">#87654321</div>
-              <div class="server-col">Exness-Real10</div>
-            </td>
-            <td><span class="badge-idle">Idle</span></td>
-            <td class="c-blue" data-usc="98440">98,440</td>
-            <td class="c-text1" data-usc="98440">98,440</td>
-            <td class="pos" data-usc="1120">+1,120</td>
-            <td class="neu">0</td>
-            <td class="neg" data-usc="-1840">-1,840</td>
-            <td class="neg">-1.89%</td>
-          </tr>
-          <tr>
-            <td><span class="port-name-col">Port 3</span></td>
-            <td>
-              <div class="port-id-col">#11223344</div>
-              <div class="server-col">XM-Real5</div>
-            </td>
-            <td><span class="badge-live"><span class="live-dot"></span>Live</span></td>
-            <td class="c-blue" data-usc="215800">215,800</td>
-            <td class="c-text1" data-usc="211800">211,800</td>
-            <td class="pos" data-usc="4620">+4,620</td>
-            <td class="neg" data-usc="-980">-980</td>
-            <td class="neg" data-usc="-5100">-5,100</td>
-            <td class="neg">-2.41%</td>
-          </tr>
-          <tr>
-            <td><span class="port-name-col">Port 4</span></td>
-            <td>
-              <div class="port-id-col">#99887766</div>
-              <div class="server-col">Pepperstone-Live</div>
-            </td>
-            <td><span class="badge-idle">Idle</span></td>
-            <td class="c-blue" data-usc="67920">67,920</td>
-            <td class="c-text1" data-usc="67920">67,920</td>
-            <td class="neg" data-usc="-340">-340</td>
-            <td class="neu">0</td>
-            <td class="neg" data-usc="-890">-890</td>
-            <td class="neg">-1.32%</td>
-          </tr>
-        </tbody>
+        <thead><tr>
+          <th>Port</th><th>Port ID / Server</th><th>Status</th>
+          <th>Equity</th><th>Balance</th><th>Today Profit</th>
+          <th>Float</th><th>Max DD</th><th>Max DD%</th>
+        </tr></thead>
+        <tbody id="s3-tbody"><tr><td colspan="9" class="no-data">⏳ กำลังโหลดข้อมูล...</td></tr></tbody>
       </table>
     </div>
   </div>
 
-  <!-- ── S4: ADVANCED PERFORMANCE GRID ── -->
+  <!-- S4: ADVANCED PERFORMANCE GRID -->
   <div>
-    <div class="sec-head">
-      <span class="sec-title">Advanced Performance Grid</span>
-      <div class="sec-line"></div>
-    </div>
+    <div class="sec-head"><span class="sec-title">Advanced Performance Grid</span><div class="sec-line"></div></div>
     <div class="adv-box">
       <div class="adv-toolbar">
         <div class="date-row">
@@ -494,250 +222,38 @@
           <button class="qbtn" onclick="setRange(this,'7d')">7D</button>
           <button class="qbtn" onclick="setRange(this,'30d')">30D</button>
           <button class="qbtn" onclick="setRange(this,'all')">All</button>
-          <div class="date-sep">|</div>
-          <div class="date-input-wrap">
-            <input type="date" id="dFrom">
-          </div>
+          <div class="date-sep" style="color:var(--border2);font-size:12px;margin:0 2px">|</div>
+          <div class="date-input-wrap"><input type="date" id="dFrom" onchange="filterAdvGrid()"></div>
           <span style="color:var(--text3);font-size:13px">→</span>
-          <div class="date-input-wrap">
-            <input type="date" id="dTo">
-          </div>
+          <div class="date-input-wrap"><input type="date" id="dTo" onchange="filterAdvGrid()"></div>
         </div>
-        <div style="font-size:10px;color:var(--text3);font-family:var(--font-mono)">4 ports</div>
+        <div style="font-size:12px;color:var(--text3);font-family:var(--font-mono)" id="s4-count">-- ports</div>
       </div>
       <div style="overflow-x:auto">
-        <table class="adv-tbl">
-          <thead>
-            <tr>
-              <th>Port</th>
-              <th>Equity</th>
-              <th>Balance</th>
-              <th>Net Deposit</th>
-              <th>Profit</th>
-              <th>Growth% <span class="sort-icon">▼</span></th>
-              <th>Winrate</th>
-              <th>Max DD</th>
-              <th>Max DD%</th>
-              <th>Trades</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <div class="adv-portname">Port 1</div>
-                <div class="adv-portid">#12345678</div>
-              </td>
-              <td class="c-blue" data-usc="142310">142,310</td>
-              <td class="c-text1" data-usc="140000">140,000</td>
-              <td class="c-yellow" data-usc="100000">100,000</td>
-              <td class="pos" data-usc="40000">+40,000</td>
-              <td class="pos">+40.00%</td>
-              <td class="c-orange">68.4%</td>
-              <td class="neg" data-usc="-3200">-3,200</td>
-              <td class="neg">-2.29%</td>
-              <td class="c-purple">312</td>
-            </tr>
-            <tr>
-              <td>
-                <div class="adv-portname">Port 2</div>
-                <div class="adv-portid">#87654321</div>
-              </td>
-              <td class="c-blue" data-usc="98440">98,440</td>
-              <td class="c-text1" data-usc="98440">98,440</td>
-              <td class="c-yellow" data-usc="80000">80,000</td>
-              <td class="pos" data-usc="18440">+18,440</td>
-              <td class="pos">+23.05%</td>
-              <td class="c-orange">61.2%</td>
-              <td class="neg" data-usc="-1840">-1,840</td>
-              <td class="neg">-1.89%</td>
-              <td class="c-purple">198</td>
-            </tr>
-            <tr>
-              <td>
-                <div class="adv-portname">Port 3</div>
-                <div class="adv-portid">#11223344</div>
-              </td>
-              <td class="c-blue" data-usc="215800">215,800</td>
-              <td class="c-text1" data-usc="211800">211,800</td>
-              <td class="c-yellow" data-usc="180000">180,000</td>
-              <td class="pos" data-usc="31800">+31,800</td>
-              <td class="pos">+17.67%</td>
-              <td class="c-orange">72.1%</td>
-              <td class="neg" data-usc="-5100">-5,100</td>
-              <td class="neg">-2.41%</td>
-              <td class="c-purple">521</td>
-            </tr>
-            <tr>
-              <td>
-                <div class="adv-portname">Port 4</div>
-                <div class="adv-portid">#99887766</div>
-              </td>
-              <td class="c-blue" data-usc="67920">67,920</td>
-              <td class="c-text1" data-usc="67920">67,920</td>
-              <td class="c-yellow" data-usc="70000">70,000</td>
-              <td class="neg" data-usc="-2080">-2,080</td>
-              <td class="neg">-2.97%</td>
-              <td class="c-orange">44.8%</td>
-              <td class="neg" data-usc="-890">-890</td>
-              <td class="neg">-1.32%</td>
-              <td class="c-purple">87</td>
-            </tr>
-          </tbody>
+        <table class="adv-tbl" id="adv-tbl">
+          <thead><tr>
+            <th onclick="sortAdv('name')">Port</th>
+            <th onclick="sortAdv('equity')">Equity <span class="sort-icon" id="si-equity"></span></th>
+            <th onclick="sortAdv('balance')">Balance <span class="sort-icon" id="si-balance"></span></th>
+            <th onclick="sortAdv('netDeposit')">Net Deposit <span class="sort-icon" id="si-netDeposit"></span></th>
+            <th onclick="sortAdv('profit')">Profit <span class="sort-icon" id="si-profit"></span></th>
+            <th onclick="sortAdv('growthPct')">Growth% <span class="sort-icon" id="si-growthPct">▼</span></th>
+            <th onclick="sortAdv('winrate')">Winrate <span class="sort-icon" id="si-winrate"></span></th>
+            <th onclick="sortAdv('maxDD')">Max DD <span class="sort-icon" id="si-maxDD"></span></th>
+            <th onclick="sortAdv('maxDDPct')">Max DD% <span class="sort-icon" id="si-maxDDPct"></span></th>
+            <th onclick="sortAdv('trades')">Trades <span class="sort-icon" id="si-trades"></span></th>
+          </tr></thead>
+          <tbody id="s4-tbody"><tr><td colspan="10" class="no-data">⏳ กำลังโหลดข้อมูล...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ── S5: DEEP-DIVE PORTFOLIO ── -->
+  <!-- S5: DEEP-DIVE PORTFOLIO -->
   <div>
-    <div class="sec-head">
-      <span class="sec-title">Deep-Dive Portfolio</span>
-      <div class="sec-line"></div>
-    </div>
-    <div class="acc-box">
-
-      <!-- PORT 1 – expanded by default -->
-      <div class="acc-item">
-        <div class="acc-hdr" onclick="toggleAcc(this)">
-          <div class="acc-left">
-            <div>
-              <div class="acc-portname">Port 1</div>
-              <div class="acc-portid">#12345678</div>
-            </div>
-            <span class="badge-live"><span class="live-dot"></span>Live</span>
-            <span class="acc-server">ICMarkets-Live01</span>
-          </div>
-          <div class="acc-quick">
-            <div class="acc-q"><span class="acc-qlbl">Equity</span><span class="acc-qval c-blue" data-usc="142310">142,310</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Profit</span><span class="acc-qval c-green" data-usc="40000">+40,000</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Growth</span><span class="acc-qval c-green">+40.00%</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Max DD</span><span class="acc-qval c-red">-2.29%</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Trades</span><span class="acc-qval c-purple">312</span></div>
-            <span class="acc-arrow open">▲</span>
-          </div>
-        </div>
-        <div class="acc-body open">
-          <div class="acc-stats">
-            <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue" data-usc="142310">142,310</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval" data-usc="140000">140,000</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow" data-usc="100000">100,000</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval c-green" data-usc="2310">+2,310</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval c-green" data-usc="40000">+40,000</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval c-green">+40.00%</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">68.4%</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval c-red">-2.29%</div></div>
-          </div>
-          <div class="chart-placeholder" id="chart1">
-            <div class="chart-label">EQUITY CURVE (ApexCharts)</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- PORT 2 -->
-      <div class="acc-item">
-        <div class="acc-hdr" onclick="toggleAcc(this)">
-          <div class="acc-left">
-            <div>
-              <div class="acc-portname">Port 2</div>
-              <div class="acc-portid">#87654321</div>
-            </div>
-            <span class="badge-idle">Idle</span>
-            <span class="acc-server">Exness-Real10</span>
-          </div>
-          <div class="acc-quick">
-            <div class="acc-q"><span class="acc-qlbl">Equity</span><span class="acc-qval c-blue" data-usc="98440">98,440</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Profit</span><span class="acc-qval c-green" data-usc="18440">+18,440</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Growth</span><span class="acc-qval c-green">+23.05%</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Max DD</span><span class="acc-qval c-red">-1.89%</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Trades</span><span class="acc-qval c-purple">198</span></div>
-            <span class="acc-arrow">▲</span>
-          </div>
-        </div>
-        <div class="acc-body">
-          <div class="acc-stats">
-            <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue" data-usc="98440">98,440</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval" data-usc="98440">98,440</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow" data-usc="80000">80,000</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval neu">0</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval c-green" data-usc="18440">+18,440</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval c-green">+23.05%</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">61.2%</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval c-red">-1.89%</div></div>
-          </div>
-          <div class="chart-placeholder" id="chart2"><div class="chart-label">EQUITY CURVE (ApexCharts)</div></div>
-        </div>
-      </div>
-
-      <!-- PORT 3 -->
-      <div class="acc-item">
-        <div class="acc-hdr" onclick="toggleAcc(this)">
-          <div class="acc-left">
-            <div>
-              <div class="acc-portname">Port 3</div>
-              <div class="acc-portid">#11223344</div>
-            </div>
-            <span class="badge-live"><span class="live-dot"></span>Live</span>
-            <span class="acc-server">XM-Real5</span>
-          </div>
-          <div class="acc-quick">
-            <div class="acc-q"><span class="acc-qlbl">Equity</span><span class="acc-qval c-blue" data-usc="215800">215,800</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Profit</span><span class="acc-qval c-green" data-usc="31800">+31,800</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Growth</span><span class="acc-qval c-green">+17.67%</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Max DD</span><span class="acc-qval c-red">-2.41%</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Trades</span><span class="acc-qval c-purple">521</span></div>
-            <span class="acc-arrow">▲</span>
-          </div>
-        </div>
-        <div class="acc-body">
-          <div class="acc-stats">
-            <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue" data-usc="215800">215,800</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval" data-usc="211800">211,800</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow" data-usc="180000">180,000</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval c-red" data-usc="-4000">-4,000</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval c-green" data-usc="31800">+31,800</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval c-green">+17.67%</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">72.1%</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval c-red">-2.41%</div></div>
-          </div>
-          <div class="chart-placeholder" id="chart3"><div class="chart-label">EQUITY CURVE (ApexCharts)</div></div>
-        </div>
-      </div>
-
-      <!-- PORT 4 -->
-      <div class="acc-item">
-        <div class="acc-hdr" onclick="toggleAcc(this)">
-          <div class="acc-left">
-            <div>
-              <div class="acc-portname">Port 4</div>
-              <div class="acc-portid">#99887766</div>
-            </div>
-            <span class="badge-idle">Idle</span>
-            <span class="acc-server">Pepperstone-Live</span>
-          </div>
-          <div class="acc-quick">
-            <div class="acc-q"><span class="acc-qlbl">Equity</span><span class="acc-qval c-blue" data-usc="67920">67,920</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Profit</span><span class="acc-qval c-red" data-usc="-2080">-2,080</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Growth</span><span class="acc-qval c-red">-2.97%</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Max DD</span><span class="acc-qval c-red">-1.32%</span></div>
-            <div class="acc-q"><span class="acc-qlbl">Trades</span><span class="acc-qval c-purple">87</span></div>
-            <span class="acc-arrow">▲</span>
-          </div>
-        </div>
-        <div class="acc-body">
-          <div class="acc-stats">
-            <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue" data-usc="67920">67,920</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval" data-usc="67920">67,920</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow" data-usc="70000">70,000</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval neu">0</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval c-red" data-usc="-2080">-2,080</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval c-red">-2.97%</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">44.8%</div></div>
-            <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval c-red">-1.32%</div></div>
-          </div>
-          <div class="chart-placeholder" id="chart4"><div class="chart-label">EQUITY CURVE (ApexCharts)</div></div>
-        </div>
-      </div>
-
+    <div class="sec-head"><span class="sec-title">Deep-Dive Portfolio</span><div class="sec-line"></div></div>
+    <div class="acc-box" id="s5-accordion">
+      <div class="no-data" style="padding:30px">⏳ กำลังโหลดข้อมูล...</div>
     </div>
   </div>
 
@@ -747,107 +263,447 @@
 </div>
 </div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0/dist/apexcharts.min.js"></script>
+
 <script>
-// ── CLOCK ──
+// ══════════════════════════════════════════════════════════
+//  FIREBASE CONFIG
+// ══════════════════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "AIzaSyDxRrMOGjRMpvK-Rzz66-u01nUy2BvT5Ys",
+  authDomain:        "ai-affiliate-bot-488110.firebaseapp.com",
+  databaseURL:       "https://ai-affiliate-bot-488110-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "ai-affiliate-bot-488110",
+  storageBucket:     "ai-affiliate-bot-488110.firebasestorage.app",
+  messagingSenderId: "381914640045",
+  appId:             "1:381914640045:web:45ec915156a1a1e4f16024",
+  measurementId:     "G-20JWKBL69K"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ══════════════════════════════════════════════════════════
+//  GLOBAL STATE
+// ══════════════════════════════════════════════════════════
+let portsData      = {};   // { portName: liveData }
+let historyData    = {};   // { portName: { YYYYMMDD: {...} } }
+let isUSD          = false;
+const USC_TO_USD   = 0.01;
+let advSortKey     = 'growthPct';
+let advSortAsc     = false;
+let advDateFrom    = null;
+let advDateTo      = null;
+let apexInstances  = {};   // { portName: ApexCharts instance }
+
+// ══════════════════════════════════════════════════════════
+//  CLOCK (เวลาท้องถิ่นผู้ใช้)
+// ══════════════════════════════════════════════════════════
 function updateClock(){
-  const now=new Date();
-  const h=String(now.getHours()).padStart(2,'0');
-  const m=String(now.getMinutes()).padStart(2,'0');
-  const s=String(now.getSeconds()).padStart(2,'0');
-  document.getElementById('clock').textContent=h+':'+m+':'+s;
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    String(now.getHours()).padStart(2,'0') + ':' +
+    String(now.getMinutes()).padStart(2,'0') + ':' +
+    String(now.getSeconds()).padStart(2,'0');
 }
 updateClock();
-setInterval(updateClock,1000);
+setInterval(updateClock, 1000);
 
-// ── UNIT TOGGLE ──
-let isUSD=false;
-const USC_TO_USD=0.01;
+// ══════════════════════════════════════════════════════════
+//  UNIT TOGGLE
+// ══════════════════════════════════════════════════════════
 function toggleUnit(){
-  isUSD=!isUSD;
-  const pill=document.getElementById('unitPill');
-  const lblUSC=document.getElementById('lblUSC');
-  const lblUSD=document.getElementById('lblUSD');
-  pill.classList.toggle('right',isUSD);
-  lblUSC.className='unit-switch-lbl '+(isUSD?'inactive':'active');
-  lblUSD.className='unit-switch-lbl '+(isUSD?'active':'inactive');
+  isUSD = !isUSD;
+  const pill = document.getElementById('unitPill');
+  pill.classList.toggle('right', isUSD);
+  document.getElementById('lblUSC').className = 'unit-switch-lbl ' + (isUSD ? 'inactive' : 'active');
+  document.getElementById('lblUSD').className = 'unit-switch-lbl ' + (isUSD ? 'active'   : 'inactive');
+  renderAll();
+}
 
-  document.querySelectorAll('[data-usc]').forEach(el=>{
-    const raw=parseFloat(el.dataset.usc);
-    if(isNaN(raw))return;
-    if(isUSD){
-      const val=raw*USC_TO_USD;
-      const sign=val>0?'+':val<0?'-':'';
-      const abs=Math.abs(val);
-      el.textContent=sign+(abs>=1000?abs.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}):abs.toFixed(2));
-    } else {
-      const sign=raw>0?'+':raw<0?'-':'';
-      const abs=Math.abs(raw);
-      el.textContent=sign+(abs>=1000?abs.toLocaleString('en-US',{maximumFractionDigits:0}):abs.toFixed(0));
-    }
-  });
-  document.querySelectorAll('.kpi-unit,.rt-sub').forEach(el=>{
-    el.textContent=el.textContent.replace(isUSD?'USC':'USD',isUSD?'USD':'USC');
+function fmtVal(raw, decimals=2){
+  if(raw === null || raw === undefined || isNaN(raw)) return '--';
+  const v = isUSD ? raw * USC_TO_USD : raw;
+  const sign = v > 0 ? '+' : '';
+  return sign + v.toLocaleString('en-US', {minimumFractionDigits: decimals, maximumFractionDigits: decimals});
+}
+function fmtPct(v, dec=2){ if(v===null||isNaN(v))return '--'; return (v>=0?'+':'')+Number(v).toFixed(dec)+'%'; }
+function colorClass(v){ if(v===null||isNaN(v))return ''; return v>0?'pos':v<0?'neg':'neu'; }
+function unitLabel(){ return isUSD ? 'USD' : 'USC'; }
+
+// GMT timestamp → Thai local date string (UTC+7)
+function gmtToThai(tsGMT){
+  if(!tsGMT) return '--';
+  const d = new Date(tsGMT * 1000 + 7*3600*1000);
+  return d.toISOString().replace('T',' ').substring(0,19) + ' (TH)';
+}
+
+// วันนี้เป็น YYYYMMDD ตาม TH timezone
+function todayKeyTH(){
+  const d = new Date(Date.now() + 7*3600*1000);
+  return d.toISOString().substring(0,10).replace(/-/g,'');
+}
+
+// ══════════════════════════════════════════════════════════
+//  FIREBASE LISTENERS
+// ══════════════════════════════════════════════════════════
+function startFirebaseListeners(){
+  const portsRef = db.ref('ports');
+
+  portsRef.on('value', snapshot => {
+    const data = snapshot.val();
+    document.getElementById('connStatus').className = 'conn-status ok';
+    document.getElementById('connStatus').textContent = '✓ Firebase';
+
+    if(!data){ renderAll(); return; }
+
+    portsData   = {};
+    historyData = {};
+
+    Object.keys(data).forEach(portName => {
+      const portObj = data[portName];
+      if(portObj.live)    portsData[portName]   = portObj.live;
+      if(portObj.history) historyData[portName] = portObj.history;
+    });
+
+    renderAll();
+  }, error => {
+    console.error('Firebase error:', error);
+    document.getElementById('connStatus').className = 'conn-status err';
+    document.getElementById('connStatus').textContent = '✗ ออฟไลน์';
   });
 }
 
-// ── ACCORDION ──
-function toggleAcc(hdr){
-  const body=hdr.nextElementSibling;
-  const arrow=hdr.querySelector('.acc-arrow');
-  const isOpen=body.classList.contains('open');
-  body.classList.toggle('open',!isOpen);
-  body.style.display=isOpen?'none':'block';
-  if(arrow){
-    arrow.textContent='▲';
-    arrow.classList.toggle('open',!isOpen);
+// ══════════════════════════════════════════════════════════
+//  RENDER ALL SECTIONS
+// ══════════════════════════════════════════════════════════
+function renderAll(){
+  renderS1();
+  renderS2();
+  renderS3();
+  renderS4();
+  renderS5();
+}
+
+// ── S1: PORTFOLIO OVERVIEW ────────────────────────────────
+function renderS1(){
+  const ports = Object.values(portsData);
+  if(!ports.length){
+    ['s1-equity','s1-balance','s1-netdeposit','s1-profit','s1-growth','s1-maxdd']
+      .forEach(id => { const el = document.getElementById(id); if(el) el.textContent='--'; });
+    return;
   }
-  if(!isOpen) drawChart(body.querySelector('.chart-placeholder'));
+
+  let totalEquity=0, totalBalance=0, totalNet=0, totalProfit=0, worstDD=0;
+  ports.forEach(p => {
+    totalEquity  += p.equity      || 0;
+    totalBalance += p.balance     || 0;
+    totalNet     += p.netDeposit  || 0;
+    totalProfit  += p.totalProfit || 0;
+    if((p.maxDDPct||0) < worstDD) worstDD = p.maxDDPct || 0;
+  });
+  const growthPct = totalNet !== 0 ? (totalProfit / Math.abs(totalNet)) * 100 : 0;
+
+  setText('s1-equity',    fmtVal(totalEquity));
+  setText('s1-balance',   fmtVal(totalBalance));
+  setText('s1-netdeposit',fmtVal(totalNet));
+
+  const profitEl = document.getElementById('s1-profit');
+  if(profitEl){ profitEl.textContent = fmtVal(totalProfit); profitEl.className = 'kpi-val ' + colorClass(totalProfit); }
+  const growthEl = document.getElementById('s1-growth');
+  if(growthEl){ growthEl.textContent = fmtPct(growthPct); growthEl.className = 'kpi-val ' + colorClass(growthPct); }
+  setText('s1-maxdd', fmtPct(worstDD));
 }
 
-// ── DATE RANGE BUTTONS ──
-function setRange(btn,range){
-  document.querySelectorAll('.qbtn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const now=new Date();
-  const fmt=d=>{
-    const y=d.getFullYear();
-    const m=String(d.getMonth()+1).padStart(2,'0');
-    const dd=String(d.getDate()).padStart(2,'0');
-    return `${y}-${m}-${dd}`;
-  };
-  const addDays=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r;};
-  let from=now, to=now;
-  if(range==='today'){from=to=now;}
-  else if(range==='yday'){from=to=addDays(now,-1);}
-  else if(range==='week'){const d=new Date(now);d.setDate(d.getDate()-d.getDay());from=d;to=now;}
-  else if(range==='7d'){from=addDays(now,-6);}
-  else if(range==='30d'){from=addDays(now,-29);}
-  else if(range==='all'){from=new Date(2020,0,1);}
-  document.getElementById('dFrom').value=fmt(from);
-  document.getElementById('dTo').value=fmt(to);
-}
-// init week
-setRange(document.querySelector('.qbtn.active'),'week');
+// ── S2: REALTIME SUMMARY ─────────────────────────────────
+function renderS2(){
+  const nowGMT = Math.floor(Date.now()/1000) - 7*3600; // convert back to GMT
+  const t1h = nowGMT - 3600;
+  const t6h = nowGMT - 21600;
+  // today start in GMT = midnight TH (UTC+7) = UTC-17:00 prev day → midnight TH
+  const d = new Date(Date.now() + 7*3600*1000);
+  const midnightTHms = new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()).getTime();
+  const todayStartGMT = Math.floor(midnightTHms/1000) - 7*3600;
 
-// ── MINI CHART DRAWING ──
-function drawChart(container){
-  if(!container||container.dataset.drawn)return;
-  container.dataset.drawn=1;
-  const vals=[100,102,101,105,108,106,112,110,115,118,116,122,120,128,125,130,133,131,138,140];
-  const max=Math.max(...vals),min=Math.min(...vals);
-  vals.forEach((v,i)=>{
-    const bar=document.createElement('div');
-    bar.className='bar';
-    const pct=((v-min)/(max-min)*75+20);
-    bar.style.height=pct+'%';
-    if(v===max){bar.style.borderTopColor='#00d68f';bar.style.background='linear-gradient(to top,#00d68f08,#00d68f22)';}
-    container.appendChild(bar);
+  let profit1h=0, profit6h=0, profitToday=0;
+  let count1h=0, count6h=0, countToday=0;
+
+  Object.values(portsData).forEach(p => {
+    const ts = p.tsGMT || 0;
+    if(ts >= t1h)       { profit1h    += p.todayProfit||0; count1h++;    }
+    if(ts >= t6h)       { profit6h    += p.todayProfit||0; count6h++;    }
+    if(ts >= todayStartGMT){ profitToday += p.todayProfit||0; countToday++; }
+  });
+
+  // S2 ใช้ค่ารวม todayProfit จากทุกพอร์ตที่รายงานมาใน window นั้น
+  setRtCard('s2-1h',    's2-1h-sub',    profit1h,    count1h);
+  setRtCard('s2-6h',    's2-6h-sub',    profit6h,    count6h);
+  setRtCard('s2-today', 's2-today-sub', profitToday, countToday);
+}
+
+function setRtCard(valId, subId, profit, portCount){
+  const el = document.getElementById(valId);
+  if(el){ el.textContent = fmtVal(profit); el.className = 'rt-val ' + colorClass(profit); }
+  const sub = document.getElementById(subId);
+  if(sub) sub.textContent = unitLabel() + ' · ' + portCount + ' ports reporting';
+}
+
+// ── S3: REALTIME BY PORT ──────────────────────────────────
+function renderS3(){
+  const tbody = document.getElementById('s3-tbody');
+  if(!tbody) return;
+
+  const ports = Object.entries(portsData);
+  if(!ports.length){
+    tbody.innerHTML = '<tr><td colspan="9" class="no-data">ยังไม่มีข้อมูลจาก EA · รอการเชื่อมต่อ...</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = ports.map(([portName, p]) => {
+    const isLive = (p.openPositions || 0) > 0;
+    const statusBadge = isLive
+      ? `<span class="badge-live"><span class="live-dot"></span>Live</span>`
+      : `<span class="badge-idle">Idle</span>`;
+    const floatCls = colorClass(p.floatPL);
+    const profitCls = colorClass(p.todayProfit);
+
+    return `<tr>
+      <td><span class="port-name-col">${portName}</span></td>
+      <td>
+        <div class="port-id-col">#${p.login || '--'}</div>
+        <div class="server-col">${p.server || '--'}</div>
+      </td>
+      <td>${statusBadge}</td>
+      <td class="c-blue">${fmtVal(p.equity)}</td>
+      <td class="c-text1">${fmtVal(p.balance)}</td>
+      <td class="${profitCls}">${fmtVal(p.todayProfit)}</td>
+      <td class="${floatCls}">${fmtVal(p.floatPL)}</td>
+      <td class="neg">${fmtVal(p.todayMaxDD)}</td>
+      <td class="neg">${fmtPct(p.todayMaxDDPct)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── S4: ADVANCED PERFORMANCE GRID ────────────────────────
+function renderS4(){
+  const tbody = document.getElementById('s4-tbody');
+  if(!tbody) return;
+
+  let ports = Object.entries(portsData).map(([name, p]) => ({
+    name, login: p.login, equity: p.equity||0, balance: p.balance||0,
+    netDeposit: p.netDeposit||0, profit: p.totalProfit||0,
+    growthPct: p.growthPct||0, winrate: p.winrate||0,
+    maxDD: p.maxDD||0, maxDDPct: p.maxDDPct||0, trades: p.totalTrades||0
+  }));
+
+  if(!ports.length){
+    tbody.innerHTML = '<tr><td colspan="10" class="no-data">ยังไม่มีข้อมูล</td></tr>';
+    document.getElementById('s4-count').textContent = '0 ports';
+    return;
+  }
+
+  // Sort
+  ports.sort((a,b) => {
+    let va = a[advSortKey], vb = b[advSortKey];
+    if(typeof va === 'string') return advSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return advSortAsc ? va - vb : vb - va;
+  });
+
+  document.getElementById('s4-count').textContent = ports.length + ' ports';
+  tbody.innerHTML = ports.map(p => `
+    <tr>
+      <td><div class="adv-portname">${p.name}</div><div class="adv-portid">#${p.login||'--'}</div></td>
+      <td class="c-blue">${fmtVal(p.equity)}</td>
+      <td class="c-text1">${fmtVal(p.balance)}</td>
+      <td class="c-yellow">${fmtVal(p.netDeposit)}</td>
+      <td class="${colorClass(p.profit)}">${fmtVal(p.profit)}</td>
+      <td class="${colorClass(p.growthPct)}">${fmtPct(p.growthPct)}</td>
+      <td class="c-orange">${p.winrate.toFixed(1)}%</td>
+      <td class="neg">${fmtVal(p.maxDD)}</td>
+      <td class="neg">${fmtPct(p.maxDDPct)}</td>
+      <td class="c-purple">${p.trades}</td>
+    </tr>`).join('');
+}
+
+function sortAdv(key){
+  if(advSortKey === key) advSortAsc = !advSortAsc;
+  else { advSortKey = key; advSortAsc = false; }
+  document.querySelectorAll('[id^="si-"]').forEach(el => el.textContent = '');
+  const si = document.getElementById('si-' + key);
+  if(si) si.textContent = advSortAsc ? '▲' : '▼';
+  renderS4();
+}
+
+function filterAdvGrid(){ renderS4(); }
+
+// ── S5: DEEP-DIVE PORTFOLIO ───────────────────────────────
+function renderS5(){
+  const container = document.getElementById('s5-accordion');
+  if(!container) return;
+
+  const ports = Object.entries(portsData);
+  if(!ports.length){
+    container.innerHTML = '<div class="no-data" style="padding:30px">ยังไม่มีข้อมูลจาก EA · รอการเชื่อมต่อ...</div>';
+    return;
+  }
+
+  ports.forEach(([portName, p]) => {
+    let item = document.getElementById('acc-' + portName);
+    if(!item){
+      item = document.createElement('div');
+      item.className = 'acc-item';
+      item.id = 'acc-' + portName;
+      container.appendChild(item);
+    }
+
+    const isLive = (p.openPositions || 0) > 0;
+    const statusBadge = isLive
+      ? `<span class="badge-live"><span class="live-dot"></span>Live</span>`
+      : `<span class="badge-idle">Idle</span>`;
+
+    const bodyId   = 'accbody-' + portName;
+    const chartId  = 'chart-'   + portName;
+    const isOpen   = item.querySelector('.acc-body.open') !== null;
+
+    item.innerHTML = `
+      <div class="acc-hdr" onclick="toggleAcc(this)">
+        <div class="acc-left">
+          <div><div class="acc-portname">${portName}</div><div class="acc-portid">#${p.login||'--'}</div></div>
+          ${statusBadge}
+          <span class="acc-server">${p.server||'--'}</span>
+        </div>
+        <div class="acc-quick">
+          <div class="acc-q"><span class="acc-qlbl">Equity</span><span class="acc-qval c-blue">${fmtVal(p.equity)}</span></div>
+          <div class="acc-q"><span class="acc-qlbl">Profit</span><span class="acc-qval ${colorClass(p.totalProfit)}">${fmtVal(p.totalProfit)}</span></div>
+          <div class="acc-q"><span class="acc-qlbl">Growth</span><span class="acc-qval ${colorClass(p.growthPct)}">${fmtPct(p.growthPct)}</span></div>
+          <div class="acc-q"><span class="acc-qlbl">Max DD</span><span class="acc-qval neg">${fmtPct(p.maxDDPct)}</span></div>
+          <div class="acc-q"><span class="acc-qlbl">Trades</span><span class="acc-qval c-purple">${p.totalTrades||0}</span></div>
+          <span class="acc-arrow ${isOpen?'open':''}">▲</span>
+        </div>
+      </div>
+      <div class="acc-body ${isOpen?'open':''}" id="${bodyId}" style="display:${isOpen?'block':'none'}">
+        <div class="acc-stats">
+          <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue">${fmtVal(p.equity)}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval c-text1">${fmtVal(p.balance)}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow">${fmtVal(p.netDeposit)}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval ${colorClass(p.floatPL)}">${fmtVal(p.floatPL)}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval ${colorClass(p.totalProfit)}">${fmtVal(p.totalProfit)}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval ${colorClass(p.growthPct)}">${fmtPct(p.growthPct)}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">${(p.winrate||0).toFixed(1)}%</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval neg">${fmtPct(p.maxDDPct)}</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:8px">
+          อัพเดตล่าสุด: ${gmtToThai(p.tsGMT)}
+        </div>
+        <div id="${chartId}"></div>
+      </div>`;
+
+    // วาดกราฟถ้า body เปิดอยู่
+    if(isOpen) drawEquityChart(portName, chartId);
   });
 }
-// draw for the open one on load
-document.querySelectorAll('.acc-body.open').forEach(b=>{
-  drawChart(b.querySelector('.chart-placeholder'));
-});
+
+// ── EQUITY CURVE (ApexCharts) ────────────────────────────
+function drawEquityChart(portName, chartId){
+  const container = document.getElementById(chartId);
+  if(!container) return;
+
+  const hist = historyData[portName];
+  let series = [];
+
+  if(hist && Object.keys(hist).length > 0){
+    series = Object.keys(hist).sort().map(dateKey => {
+      const y = parseInt(dateKey.substring(0,4));
+      const m = parseInt(dateKey.substring(4,6)) - 1;
+      const d = parseInt(dateKey.substring(6,8));
+      const ts = new Date(y, m, d).getTime();
+      return { x: ts, y: parseFloat((hist[dateKey].equity || 0).toFixed(2)) };
+    });
+  } else {
+    // fallback: แสดงค่าปัจจุบัน
+    const p = portsData[portName];
+    if(p) series = [{ x: Date.now(), y: p.equity || 0 }];
+  }
+
+  if(apexInstances[portName]){ apexInstances[portName].destroy(); }
+
+  const options = {
+    chart: { type:'area', height:140, background:'transparent', toolbar:{show:false}, sparkline:{enabled:false},
+             animations:{enabled:true, easing:'easeinout', speed:600} },
+    series: [{ name:'Equity', data: series }],
+    colors: ['#3d9eff'],
+    fill: { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:0.3, opacityTo:0.02, stops:[0,100] } },
+    stroke: { curve:'smooth', width:2 },
+    xaxis: { type:'datetime', labels:{ style:{colors:'#4d6080', fontSize:'10px', fontFamily:'JetBrains Mono'} },
+             axisBorder:{color:'#1e2733'}, axisTicks:{color:'#1e2733'} },
+    yaxis: { labels:{ style:{colors:'#4d6080', fontSize:'10px', fontFamily:'JetBrains Mono'},
+                      formatter: v => (isUSD ? (v*USC_TO_USD).toFixed(2) : Math.round(v)).toLocaleString('en-US') } },
+    grid: { borderColor:'#1e2733', strokeDashArray:3 },
+    tooltip: { theme:'dark', x:{format:'dd MMM yyyy'}, y:{formatter: v => fmtVal(v) + ' ' + unitLabel()} },
+    theme: { mode:'dark' }
+  };
+
+  try {
+    apexInstances[portName] = new ApexCharts(container, options);
+    apexInstances[portName].render();
+  } catch(e){ console.warn('ApexCharts error:', e); }
+}
+
+// ── ACCORDION TOGGLE ─────────────────────────────────────
+function toggleAcc(hdr){
+  const body  = hdr.nextElementSibling;
+  const arrow = hdr.querySelector('.acc-arrow');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  body.style.display = isOpen ? 'none' : 'block';
+  if(arrow) arrow.classList.toggle('open', !isOpen);
+
+  if(!isOpen){
+    // หา portName จาก body id
+    const portName = body.id.replace('accbody-','');
+    const chartId  = 'chart-' + portName;
+    setTimeout(() => drawEquityChart(portName, chartId), 100);
+  }
+}
+
+// ── DATE RANGE ───────────────────────────────────────────
+function setRange(btn, range){
+  document.querySelectorAll('.qbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const now = new Date();
+  const fmt = d => {
+    return d.getFullYear() + '-' +
+           String(d.getMonth()+1).padStart(2,'0') + '-' +
+           String(d.getDate()).padStart(2,'0');
+  };
+  const add = (d, n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
+  let from = now, to = now;
+  if(range==='today'){}
+  else if(range==='yday'){ from=to=add(now,-1); }
+  else if(range==='week'){ from=new Date(now); from.setDate(now.getDate()-now.getDay()); }
+  else if(range==='7d'){ from=add(now,-6); }
+  else if(range==='30d'){ from=add(now,-29); }
+  else if(range==='all'){ from=new Date(2020,0,1); }
+  document.getElementById('dFrom').value = fmt(from);
+  document.getElementById('dTo').value   = fmt(to);
+  filterAdvGrid();
+}
+
+// ── HELPER ───────────────────────────────────────────────
+function setText(id, val){
+  const el = document.getElementById(id);
+  if(el) el.textContent = val;
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+setRange(document.querySelector('.qbtn.active'), 'week');
+startFirebaseListeners();
 </script>
 </body>
 </html>
