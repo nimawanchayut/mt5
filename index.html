@@ -888,9 +888,9 @@ function setRange(btn, range){
   if(range==='today'){}
   else if(range==='yday'){ from=to=yesterday; }
   else if(range==='week'){
-    // อาทิตย์-เมื่อวาน (ถ้าวันนี้อาทิตย์จะได้แค่เมื่อวาน)
+    // อาทิตย์-วันนี้
     from=new Date(now); from.setDate(now.getDate()-now.getDay());
-    to=yesterday;
+    to=now;
   }
   else if(range==='7d'){ from=add(yesterday,-6); to=yesterday; }
   else if(range==='30d'){ from=add(yesterday,-29); to=yesterday; }
