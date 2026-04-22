@@ -49,14 +49,14 @@
   .theme-switch-lbl.active{opacity:1}
   .theme-switch-lbl.inactive{opacity:.4}
   html{background:var(--bg0);color:var(--text1);font-family:var(--font-sans);font-size:15px;line-height:1.6}
-  body{min-height:100vh;background:var(--bg0)}
+  body{min-height:100vh;background:var(--bg0);overflow-x:hidden}
   ::-webkit-scrollbar{width:4px;height:4px}
   ::-webkit-scrollbar-track{background:var(--bg1)}
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
   /* TOP BAR */
   .topbar{position:sticky;top:0;z-index:100;background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;height:64px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px)}
-  .topbar-inner{width:100%;max-width:1280px;display:flex;align-items:center;justify-content:space-between}
+  .topbar-inner{width:100%;max-width:1280px;display:flex;align-items:center;justify-content:space-between;min-width:0}
   .logo{font-family:var(--font-mono);font-size:24px;font-weight:600;color:var(--blue);letter-spacing:2px;display:flex;align-items:center;gap:10px}
   .logo span{color:var(--blue)}
   @keyframes blink{0%,100%{opacity:1;box-shadow:0 0 6px var(--green)}50%{opacity:.3;box-shadow:none}}
@@ -75,7 +75,7 @@
   .conn-status.err{color:var(--red);border-color:#ff4d6a30;background:#1a000a}
 
   /* CONTENT */
-  .content{padding:20px 32px;display:flex;flex-direction:column;gap:20px;max-width:1280px;margin:0 auto;width:100%;box-sizing:border-box}
+  .content{padding:20px 32px;display:flex;flex-direction:column;gap:20px;max-width:1280px;margin:0 auto;width:100%;box-sizing:border-box;overflow-x:hidden}
 
   /* SECTION */
   .sec-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}
@@ -205,7 +205,7 @@
     .conn-status{font-size:10px;padding:2px 6px;white-space:nowrap}
 
     /* content */
-    .content{padding:10px 10px;gap:14px}
+    .content{padding:10px 10px;gap:14px;max-width:100vw}
 
     /* KPI — 2 cols */
     .kpi-grid{grid-template-columns:repeat(2,1fr);gap:8px}
@@ -218,7 +218,7 @@
     .rt-val{font-size:20px}
 
     /* S3 table — horizontal scroll */
-    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:calc(100vw - 20px)}
     .tbl{min-width:600px;font-size:12px}
     .tbl th{padding:9px 10px;font-size:11px}
     .tbl td{padding:9px 10px}
@@ -227,7 +227,7 @@
     .server-col{font-size:10px}
 
     /* S4 Advanced Grid — horizontal scroll */
-    .adv-box{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .adv-box{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:calc(100vw - 20px)}
     .adv-tbl{min-width:700px;font-size:11px}
     .adv-tbl th{padding:8px 8px;font-size:10px}
     .adv-tbl td{padding:8px 8px}
@@ -237,7 +237,7 @@
     .date-input-wrap input[type="date"]{width:90px;font-size:11px}
 
     /* Accordion */
-    .acc-hdr{padding:10px 12px;flex-wrap:wrap;gap:6px}
+    .acc-hdr{padding:10px 12px;flex-wrap:wrap;gap:6px;overflow:hidden}
     .acc-left{gap:7px}
     .acc-portname{font-size:13px}
     .acc-server{font-size:10px}
