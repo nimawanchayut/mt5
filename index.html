@@ -136,6 +136,8 @@
   .adv-box{background:var(--bg2);border:1px solid var(--border);border-radius:6px;overflow:hidden}
   .adv-toolbar{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--bg1)}
   .date-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .date-row-btns{display:flex;align-items:center;gap:4px;flex-wrap:nowrap}
+  .date-row-inputs{display:flex;align-items:center;gap:4px;flex-wrap:nowrap;white-space:nowrap;flex:1}
   .qbtn{font-family:var(--font-mono);font-size:13px;font-weight:500;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:4px 9px;border-radius:4px;cursor:pointer;transition:.15s;white-space:nowrap}
   .qbtn:hover{border-color:var(--blue);color:var(--blue)}
   .qbtn.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
@@ -242,7 +244,9 @@
     .adv-tbl th{padding:8px 8px;font-size:10px}
     .adv-tbl td{padding:8px 8px}
     .adv-toolbar{padding:8px 10px}
-    .date-row{gap:4px}
+    .date-row{gap:6px;flex-wrap:wrap}
+    .date-row-btns{flex-wrap:wrap}
+    .date-row-inputs{width:100%;flex-shrink:0;justify-content:flex-start}
     .qbtn{font-size:11px;padding:3px 7px}
     .date-input-wrap input[type="date"]{width:90px;font-size:11px}
 
@@ -358,18 +362,21 @@
     <div class="adv-box">
       <div class="adv-toolbar">
         <div class="date-row">
-          <button class="qbtn" onclick="setRange(this,'today')">Today</button>
-          <button class="qbtn" onclick="setRange(this,'yday')">Yday</button>
-          <button class="qbtn active" onclick="setRange(this,'week')">Week</button>
-          <button class="qbtn" onclick="setRange(this,'7d')">7D</button>
-          <button class="qbtn" onclick="setRange(this,'30d')">30D</button>
-          <button class="qbtn" onclick="setRange(this,'all')">All</button>
-          <div class="date-sep" style="color:var(--border2);font-size:12px;margin:0 2px">|</div>
-          <div class="date-input-wrap"><input type="date" id="dFrom" onchange="filterAdvGrid()"></div>
-          <span style="color:var(--text3);font-size:13px">→</span>
-          <div class="date-input-wrap"><input type="date" id="dTo" onchange="filterAdvGrid()"></div>
+          <div class="date-row-btns">
+            <button class="qbtn" onclick="setRange(this,'today')">Today</button>
+            <button class="qbtn" onclick="setRange(this,'yday')">Yday</button>
+            <button class="qbtn active" onclick="setRange(this,'week')">Week</button>
+            <button class="qbtn" onclick="setRange(this,'7d')">7D</button>
+            <button class="qbtn" onclick="setRange(this,'30d')">30D</button>
+            <button class="qbtn" onclick="setRange(this,'all')">All</button>
+          </div>
+          <div class="date-row-inputs">
+            <div class="date-input-wrap"><input type="date" id="dFrom" onchange="filterAdvGrid()"></div>
+            <span style="color:var(--text3);font-size:13px">→</span>
+            <div class="date-input-wrap"><input type="date" id="dTo" onchange="filterAdvGrid()"></div>
+            <div style="font-size:12px;color:var(--text3);font-family:var(--font-mono);white-space:nowrap;margin-left:auto;padding-left:12px" id="s4-count">-- ports</div>
+          </div>
         </div>
-        <div style="font-size:12px;color:var(--text3);font-family:var(--font-mono)" id="s4-count">-- ports</div>
       </div>
       <div style="overflow-x:auto">
         <table class="adv-tbl" id="adv-tbl">
