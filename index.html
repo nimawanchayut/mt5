@@ -780,7 +780,7 @@ function drawEquityChart(portName, chartId){
     data: keys.length > 0
       ? keys.map(dk => {
           const y=parseInt(dk.substring(0,4)),m=parseInt(dk.substring(4,6))-1,dv=parseInt(dk.substring(6,8));
-          return { x: new Date(y,m,dv).getTime(), y: parseFloat((d.fn(hist[dk])||0).toFixed(2)) };
+          return { x: Date.UTC(y,m,dv), y: parseFloat((d.fn(hist[dk])||0).toFixed(2)) };
         })
       : [{ x: Date.now(), y: parseFloat((d.fn(live)||0).toFixed(2)) }]
   }));
