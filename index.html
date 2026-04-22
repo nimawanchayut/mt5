@@ -438,8 +438,11 @@ function renderS1(){
       let portProfit = 0;
       histKeys.forEach(k => { portProfit += hist[k].dayProfit || 0; });
       totalProfit += portProfit;
-      const ddPct = lh.maxDDPct || live.maxDDPct || 0;
-      if(ddPct < worstDD) worstDD = ddPct;
+      // หา dayMaxDDPct ต่ำสุดจากทุกวันใน history
+      histKeys.forEach(k => {
+        const ddPct = hist[k].dayMaxDDPct || 0;
+        if(ddPct < worstDD) worstDD = ddPct;
+      });
     } else {
       totalNet    += live.netDeposit  || 0;
       totalProfit += live.totalProfit || 0;
@@ -597,8 +600,8 @@ function renderS4(){
       profit:     sumProfit,
       growthPct:  cumNet !== 0 ? sumProfit / Math.abs(cumNet) * 100 : 0,
       winrate:    periodWinrate,
-      maxDD:      lastHist.maxDD    || liveData.maxDD    || 0,
-      maxDDPct:   lastHist.maxDDPct || liveData.maxDDPct || 0,
+      maxDD:      filtered.reduce((mn,k)=>Math.min(mn, hist[k].dayMaxDD||0), 0),
+      maxDDPct:   filtered.reduce((mn,k)=>Math.min(mn, hist[k].dayMaxDDPct||0), 0),
       trades:     sumTrades
     };
   }
@@ -687,7 +690,9 @@ function renderS5(){
     const s5growth  = (s5net !== 0) ? (s5profit / Math.abs(s5net)) * 100 : (p.growthPct || 0);
     const s5net     = lastH5.netDeposit   !== undefined ? lastH5.netDeposit   : (p.netDeposit  ||0);
     const s5winrate = lastH5.winrate      !== undefined ? lastH5.winrate      : (p.winrate     ||0);
-    const s5maxDDPct= lastH5.maxDDPct     !== undefined ? lastH5.maxDDPct     : (p.maxDDPct    ||0);
+    // Max DD = วันที่แย่สุดใน history ทั้งหมด
+    const s5maxDD    = hKeys5.reduce((mn,k)=>Math.min(mn, hist5[k].dayMaxDD||0), 0);
+    const s5maxDDPct = hKeys5.reduce((mn,k)=>Math.min(mn, hist5[k].dayMaxDDPct||0), 0);
     const s5trades  = lastH5.totalTrades  !== undefined ? lastH5.totalTrades  : (p.totalTrades ||0);
 
     item.innerHTML = `
@@ -715,7 +720,7 @@ function renderS5(){
           <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval ${colorClass(s5profit)}">${fmtVal(s5profit)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
           <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval ${colorClass(s5growth)}">${fmtPct(s5growth)}</div><div class="acc-unit">%</div></div>
           <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">${(s5winrate||0).toFixed(1)}%</div><div class="acc-unit">%</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval" style="color:#f5a623">${fmtPct(s5maxDDPct)}</div><div class="acc-unit">%</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Max DD Day</div><div class="acc-sval c-amber">${fmtVal(s5maxDD)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div><div class="acc-stat"><div class="acc-slbl">Max DD%</div><div class="acc-sval neg">${fmtPct(s5maxDDPct)}</div><div class="acc-unit">%</div></div>
         </div>
         <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:8px">
           อัพเดตล่าสุด: ${gmtToThai(p.tsGMT)}
