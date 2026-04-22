@@ -275,12 +275,12 @@
       <div style="overflow-x:auto">
         <table class="adv-tbl" id="adv-tbl">
           <thead><tr>
-            <th onclick="sortAdv('name')">Port</th>
+            <th onclick="sortAdv('name')">Port <span class="sort-icon" id="si-name">▲</span></th>
             <th onclick="sortAdv('equity')">Equity<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span> <span class="sort-icon" id="si-equity"></span></th>
             <th onclick="sortAdv('balance')">Balance<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span> <span class="sort-icon" id="si-balance"></span></th>
             <th onclick="sortAdv('netDeposit')">Net Deposit<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span> <span class="sort-icon" id="si-netDeposit"></span></th>
             <th onclick="sortAdv('profit')">Profit<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span> <span class="sort-icon" id="si-profit"></span></th>
-            <th onclick="sortAdv('growthPct')">Growth% <span class="sort-icon" id="si-growthPct">▼</span></th>
+            <th onclick="sortAdv('growthPct')">Growth% <span class="sort-icon" id="si-growthPct"></span></th>
             <th onclick="sortAdv('winrate')">Winrate <span class="sort-icon" id="si-winrate"></span></th>
             <th onclick="sortAdv('maxDD')">Max DD<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span> <span class="sort-icon" id="si-maxDD"></span></th>
             <th onclick="sortAdv('maxDDPct')">Max DD% <span class="sort-icon" id="si-maxDDPct"></span></th>
@@ -337,8 +337,8 @@ let portsData      = {};   // { portName: liveData }
 let historyData    = {};   // { portName: { YYYYMMDD: {...} } }
 let isUSD          = false;
 const USC_TO_USD   = 0.01;
-let advSortKey     = 'growthPct';
-let advSortAsc     = false;
+let advSortKey     = 'name';
+let advSortAsc     = true;
 let advDateFrom    = null;
 let advDateTo      = null;
 let apexInstances  = {};   // { portName: ApexCharts instance }
