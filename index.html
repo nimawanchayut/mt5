@@ -16,6 +16,18 @@
     --yellow:#f5c842;--orange:#ff8c2a;--purple:#b06eff;
     --font-mono:'JetBrains Mono',monospace;--font-sans:'Inter',sans-serif;
   }
+  /* LIGHT MODE */
+  html.light{
+    --bg0:#f0f4f8;--bg1:#ffffff;--bg2:#f8fafc;--bg3:#e8edf5;
+    --border:#d0dae8;--border2:#b8c8dc;
+    --text1:#1a2540;--text2:#4a6080;--text3:#8090b0;
+    --green:#00a86b;--green-dim:#d0f0e8;--green-bg:#e8f8f2;
+    --red:#e0253a;--blue:#1a7acc;--blue-dim:#d8eaf8;
+    --yellow:#c08000;--orange:#c05010;--purple:#7040c0;
+  }
+  html.light .date-input-wrap input[type="date"]{color-scheme:light}
+  .theme-btn{display:flex;align-items:center;gap:5px;font-family:var(--font-mono);font-size:12px;font-weight:600;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:4px 12px;border-radius:16px;cursor:pointer;transition:.2s;letter-spacing:.5px}
+  .theme-btn:hover{border-color:var(--blue);color:var(--blue)}
   html{background:var(--bg0);color:var(--text1);font-family:var(--font-sans);font-size:15px;line-height:1.6}
   body{min-height:100vh;background:var(--bg0)}
   ::-webkit-scrollbar{width:4px;height:4px}
@@ -135,6 +147,9 @@
   .acc-slbl{font-size:12px;color:var(--text3);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
   .acc-sval{font-size:16px;font-weight:600;font-family:var(--font-mono)}
   #apexcharts-wrapper{background:var(--bg2);border:1px solid var(--border);border-radius:5px;margin-top:0}
+  .cbtn{font-family:var(--font-mono);font-size:11px;font-weight:500;padding:3px 10px;border-radius:12px;cursor:pointer;border:1px solid var(--border2);background:var(--bg3);color:var(--text3);transition:.15s}
+  .cbtn:hover{border-color:var(--blue);color:var(--blue)}
+  .cbtn.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue)}
 
   /* LOADING SKELETON */
   .skeleton{background:linear-gradient(90deg,var(--bg3) 25%,var(--border2) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:4px;height:1em;display:inline-block;min-width:80px}
@@ -158,6 +173,7 @@
       <div class="live-badge"><span class="live-dot"></span>LIVE</div>
       <div class="clock" id="clock">--:--:--</div>
       <span class="conn-status" id="connStatus">⏳ เชื่อมต่อ...</span>
+      <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">🌙 Dark</button>
       <div class="unit-switch" onclick="toggleUnit()" id="unitSwitch">
         <div class="unit-switch-pill" id="unitPill"></div>
         <span class="unit-switch-lbl active" id="lblUSC">USC</span>
@@ -181,7 +197,7 @@
     <div class="kpi-grid">
       <div class="kpi"><div class="kpi-label">Grand Total Profit</div><div class="kpi-val" id="s1-profit">--</div><div class="kpi-unit usc-label">USC</div></div>
       <div class="kpi"><div class="kpi-label">Overall Growth</div><div class="kpi-val" id="s1-growth">--</div><div class="kpi-unit">vs Net Deposit</div></div>
-      <div class="kpi"><div class="kpi-label">Overall Max DD</div><div class="kpi-val" id="s1-maxdd">--</div><div class="kpi-unit">worst recorded</div></div>
+      <div class="kpi"><div class="kpi-label">Overall Max DD</div><div class="kpi-val c-red" id="s1-maxdd">--</div><div class="kpi-unit">worst recorded</div></div>
     </div>
   </div>
 
@@ -508,9 +524,8 @@ function renderS4(){
     const hist = historyData[portName] || {};
     const histKeys = Object.keys(hist).sort();
 
-    // ถ้าไม่มี history หรือ range = All → ใช้ liveData โดยตรง
+    // All / no filter → ใช้ liveData โดยตรง
     const useAllLive = (!fromKey && !toKey) || histKeys.length === 0;
-
     if(useAllLive){
       return {
         name: portName, login: liveData.login,
@@ -518,6 +533,21 @@ function renderS4(){
         netDeposit: liveData.netDeposit||0, profit: liveData.totalProfit||0,
         growthPct: liveData.growthPct||0, winrate: liveData.winrate||0,
         maxDD: liveData.maxDD||0, maxDDPct: liveData.maxDDPct||0,
+        trades: liveData.totalTrades||0
+      };
+    }
+    // Today → ดึงจาก liveData.todayProfit โดยตรง
+    const todayKey2 = (()=>{const d=new Date();return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');})();
+    const isOnlyToday = fromKey === toKey && fromKey === todayKey2.replace(/^([0-9]{4})([0-9]{2})([0-9]{2})$/,'$1-$2-$3').replace(/-/g,'');
+    if(isOnlyToday){
+      return {
+        name: portName, login: liveData.login,
+        equity: liveData.equity||0, balance: liveData.balance||0,
+        netDeposit: liveData.netDeposit||0,
+        profit: liveData.todayProfit||0,
+        growthPct: (liveData.netDeposit||0)!==0 ? (liveData.todayProfit||0)/Math.abs(liveData.netDeposit)*100 : 0,
+        winrate: liveData.winrate||0,
+        maxDD: liveData.todayMaxDD||0, maxDDPct: liveData.todayMaxDDPct||0,
         trades: liveData.totalTrades||0
       };
     }
@@ -625,6 +655,9 @@ function renderS5(){
     container.innerHTML = '<div class="no-data" style="padding:30px">ยังไม่มีข้อมูลจาก EA · รอการเชื่อมต่อ...</div>';
     return;
   }
+  // ลบ loading placeholder ออก
+  const loadingEl = container.querySelector('.no-data');
+  if(loadingEl) loadingEl.remove();
 
   ports.forEach(([portName, p]) => {
     let item = document.getElementById('acc-' + portName);
@@ -674,6 +707,11 @@ function renderS5(){
         <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:8px">
           อัพเดตล่าสุด: ${gmtToThai(p.tsGMT)}
         </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="ctoggle-${portName}">
+          <button class="cbtn active" data-series="balance"  onclick="toggleSeries(this,'${portName}')">Balance</button>
+          <button class="cbtn active" data-series="profit"   onclick="toggleSeries(this,'${portName}')">Profit</button>
+          <button class="cbtn"        data-series="maxdd"    onclick="toggleSeries(this,'${portName}')">Max DD</button>
+        </div>
         <div id="${chartId}"></div>
       </div>`;
 
@@ -682,45 +720,98 @@ function renderS5(){
   });
 }
 
-// ── EQUITY CURVE (ApexCharts) ────────────────────────────
+// ── EQUITY CURVE (ApexCharts) multi-series ───────────────
+const chartSeriesState = {}; // { portName: {balance:true, profit:true, maxdd:false} }
+
+function getActiveSeries(portName){
+  if(!chartSeriesState[portName])
+    chartSeriesState[portName] = { balance:true, profit:true, maxdd:false };
+  return chartSeriesState[portName];
+}
+
+function toggleSeries(btn, portName){
+  const key = btn.dataset.series;
+  const state = getActiveSeries(portName);
+  state[key] = !state[key];
+  btn.classList.toggle('active', state[key]);
+  const chartId = 'chart-' + portName;
+  if(apexInstances[portName]){ apexInstances[portName].destroy(); delete apexInstances[portName]; }
+  drawEquityChart(portName, chartId);
+}
+
 function drawEquityChart(portName, chartId){
   const container = document.getElementById(chartId);
   if(!container) return;
 
-  const hist = historyData[portName];
-  let series = [];
+  const hist  = historyData[portName] || {};
+  const live  = portsData[portName]   || {};
+  const state = getActiveSeries(portName);
+  const isDark= !document.documentElement.classList.contains('light');
 
-  if(hist && Object.keys(hist).length > 0){
-    series = Object.keys(hist).sort().map(dateKey => {
-      const y = parseInt(dateKey.substring(0,4));
-      const m = parseInt(dateKey.substring(4,6)) - 1;
-      const d = parseInt(dateKey.substring(6,8));
-      const ts = new Date(y, m, d).getTime();
-      const val = hist[dateKey].balance || hist[dateKey].equity || 0;
-      return { x: ts, y: parseFloat(val.toFixed(2)) };
-    });
-  } else {
-    // fallback: แสดงค่าปัจจุบัน
-    const p = portsData[portName];
-    if(p) series = [{ x: Date.now(), y: p.equity || 0 }];
+  const keys = Object.keys(hist).sort();
+  const mkSeries = (label, color, fillOp, keyFn) => ({
+    name: label,
+    color,
+    data: keys.map(dk => {
+      const y=parseInt(dk.substring(0,4)),m=parseInt(dk.substring(4,6))-1,d=parseInt(dk.substring(6,8));
+      return { x: new Date(y,m,d).getTime(), y: parseFloat((keyFn(hist[dk])||0).toFixed(2)) };
+    })
+  });
+
+  let series = [];
+  if(state.balance) series.push(mkSeries('Balance','#3d9eff',0.25, r=>r.balance||r.equity||0));
+  if(state.profit)  series.push(mkSeries('Profit', '#00d68f',0.20, r=>r.totalProfit||0));
+  if(state.maxdd)   series.push(mkSeries('Max DD', '#ff4d6a',0.15, r=>r.maxDD||0));
+
+  // fallback จุดเดียวถ้าไม่มี history
+  if(series.length === 0 || keys.length === 0){
+    series = [{ name:'Balance', color:'#3d9eff', data:[{x:Date.now(), y:live.balance||0}] }];
   }
+
+  const axisColor = isDark ? '#4d6080' : '#8090b0';
+  const gridColor = isDark ? '#1e2733' : '#d0dae8';
+  const bgColor   = 'transparent';
 
   if(apexInstances[portName]){ apexInstances[portName].destroy(); }
 
   const options = {
-    chart: { type:'area', height:140, background:'transparent', toolbar:{show:false}, sparkline:{enabled:false},
-             animations:{enabled:true, easing:'easeinout', speed:600} },
-    series: [{ name:'Equity', data: series }],
-    colors: ['#3d9eff'],
-    fill: { type:'gradient', gradient:{ shadeIntensity:1, opacityFrom:0.3, opacityTo:0.02, stops:[0,100] } },
-    stroke: { curve:'smooth', width:2 },
-    xaxis: { type:'datetime', labels:{ style:{colors:'#4d6080', fontSize:'10px', fontFamily:'JetBrains Mono'} },
-             axisBorder:{color:'#1e2733'}, axisTicks:{color:'#1e2733'} },
-    yaxis: { labels:{ style:{colors:'#4d6080', fontSize:'10px', fontFamily:'JetBrains Mono'},
-                      formatter: v => (isUSD ? (v*USC_TO_USD).toFixed(2) : Math.round(v)).toLocaleString('en-US') } },
-    grid: { borderColor:'#1e2733', strokeDashArray:3 },
-    tooltip: { theme:'dark', x:{format:'dd MMM yyyy'}, y:{formatter: v => fmtVal(v) + ' ' + unitLabel()} },
-    theme: { mode:'dark' }
+    chart:{
+      type:'line', height:180, background:bgColor,
+      toolbar:{show:false},
+      animations:{enabled:true,easing:'easeinout',speed:500},
+      zoom:{enabled:false}
+    },
+    series,
+    stroke:{ curve:'smooth', width:2 },
+    fill:{
+      type:'gradient',
+      gradient:{type:'vertical',shadeIntensity:1,opacityFrom:0.18,opacityTo:0,stops:[0,90]}
+    },
+    markers:{
+      size:0,          // ซ่อน marker ตลอด
+      hover:{ size:5 } // แสดงเฉพาะตอน hover
+    },
+    xaxis:{
+      type:'datetime',
+      labels:{style:{colors:axisColor,fontSize:'10px',fontFamily:'JetBrains Mono'}},
+      axisBorder:{color:gridColor}, axisTicks:{color:gridColor}
+    },
+    yaxis:{
+      labels:{
+        style:{colors:axisColor,fontSize:'10px',fontFamily:'JetBrains Mono'},
+        formatter: v => (isUSD?(v*USC_TO_USD):v).toLocaleString('en-US',{maximumFractionDigits:isUSD?2:0})
+      }
+    },
+    grid:{ borderColor:gridColor, strokeDashArray:3 },
+    legend:{ labels:{colors:axisColor}, fontFamily:'JetBrains Mono', fontSize:'11px' },
+    tooltip:{
+      theme: isDark ? 'dark' : 'light',
+      shared:true,
+      intersect:false,
+      x:{ format:'dd MMM yyyy' },
+      y:{ formatter: v => fmtVal(v)+' '+unitLabel() }
+    },
+    theme:{ mode: isDark ? 'dark' : 'light' }
   };
 
   try {
@@ -775,9 +866,31 @@ function setText(id, val){
   if(el) el.textContent = val;
 }
 
+// ── THEME TOGGLE ─────────────────────────────────────────
+function toggleTheme(){
+  const html = document.documentElement;
+  const btn  = document.getElementById('themeBtn');
+  const isLight = html.classList.toggle('light');
+  btn.textContent = isLight ? '🌙 Dark' : '☀️ Light';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  // re-render charts ด้วย theme ใหม่
+  Object.keys(apexInstances).forEach(p => {
+    if(apexInstances[p]){ apexInstances[p].destroy(); delete apexInstances[p]; }
+  });
+  document.querySelectorAll('[id^="chart-"]').forEach(el => {
+    const portName = el.id.replace('chart-','');
+    if(el.closest('.acc-body.open')) drawEquityChart(portName, el.id);
+  });
+}
+
 // ══════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════
+// restore theme
+if(localStorage.getItem('theme') === 'light'){
+  document.documentElement.classList.add('light');
+  document.getElementById('themeBtn').textContent = '☀️ Light';
+}
 setRange(document.querySelector('.qbtn.active'), 'week');
 startFirebaseListeners();
 </script>
