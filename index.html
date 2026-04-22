@@ -413,21 +413,38 @@ function renderAll(){
 
 // ── S1: PORTFOLIO OVERVIEW ────────────────────────────────
 function renderS1(){
-  const ports = Object.values(portsData);
-  if(!ports.length){
+  const portNames = Object.keys(portsData);
+  if(!portNames.length){
     ['s1-equity','s1-balance','s1-netdeposit','s1-profit','s1-growth','s1-maxdd']
       .forEach(id => { const el = document.getElementById(id); if(el) el.textContent='--'; });
     return;
   }
 
   let totalEquity=0, totalBalance=0, totalNet=0, totalProfit=0, worstDD=0;
-  ports.forEach(p => {
-    totalEquity  += p.equity      || 0;
-    totalBalance += p.balance     || 0;
-    totalNet     += p.netDeposit  || 0;
-    totalProfit  += p.totalProfit || 0;
-    if((p.maxDDPct||0) < worstDD) worstDD = p.maxDDPct || 0;
+
+  portNames.forEach(pn => {
+    const live = portsData[pn] || {};
+    const hist = historyData[pn] || {};
+    const histKeys = Object.keys(hist).sort();
+    // ใช้ liveData สำหรับ equity (realtime)
+    totalEquity  += live.equity || 0;
+    totalBalance += live.balance || 0;
+
+    if(histKeys.length > 0){
+      // ดึงจาก history วันล่าสุด (ซึ่ง EA อัพเดทวันนี้แล้ว)
+      const lastKey = histKeys[histKeys.length - 1];
+      const lh = hist[lastKey] || {};
+      totalNet    += lh.netDeposit  || live.netDeposit  || 0;
+      totalProfit += lh.totalProfit || live.totalProfit || 0;
+      const ddPct  = lh.maxDDPct   || live.maxDDPct    || 0;
+      if(ddPct < worstDD) worstDD = ddPct;
+    } else {
+      totalNet    += live.netDeposit  || 0;
+      totalProfit += live.totalProfit || 0;
+      if((live.maxDDPct||0) < worstDD) worstDD = live.maxDDPct || 0;
+    }
   });
+
   const growthPct = totalNet !== 0 ? (totalProfit / Math.abs(totalNet)) * 100 : 0;
 
   setText('s1-equity',    fmtVal(totalEquity));
@@ -657,6 +674,17 @@ function renderS5(){
     const chartId  = 'chart-'   + portName;
     const isOpen   = item.querySelector('.acc-body.open') !== null;
 
+    // ดึงค่าสถิติจาก history วันล่าสุด (ถูกต้องกว่า liveData)
+    const hist5    = historyData[portName] || {};
+    const hKeys5   = Object.keys(hist5).sort();
+    const lastH5   = hKeys5.length > 0 ? (hist5[hKeys5[hKeys5.length-1]] || {}) : {};
+    const s5profit  = lastH5.totalProfit  !== undefined ? lastH5.totalProfit  : (p.totalProfit ||0);
+    const s5growth  = lastH5.growthPct    !== undefined ? lastH5.growthPct    : (p.growthPct   ||0);
+    const s5net     = lastH5.netDeposit   !== undefined ? lastH5.netDeposit   : (p.netDeposit  ||0);
+    const s5winrate = lastH5.winrate      !== undefined ? lastH5.winrate      : (p.winrate     ||0);
+    const s5maxDDPct= lastH5.maxDDPct     !== undefined ? lastH5.maxDDPct     : (p.maxDDPct    ||0);
+    const s5trades  = lastH5.totalTrades  !== undefined ? lastH5.totalTrades  : (p.totalTrades ||0);
+
     item.innerHTML = `
       <div class="acc-hdr" onclick="toggleAcc(this)">
         <div class="acc-left">
@@ -666,10 +694,10 @@ function renderS5(){
         </div>
         <div class="acc-quick">
           <div class="acc-q"><span class="acc-qlbl">Equity</span><span class="acc-qval c-blue">${fmtVal(p.equity)}</span></div>
-          <div class="acc-q"><span class="acc-qlbl">Profit</span><span class="acc-qval ${colorClass(p.totalProfit)}">${fmtVal(p.totalProfit)}</span></div>
-          <div class="acc-q"><span class="acc-qlbl">Growth</span><span class="acc-qval ${colorClass(p.growthPct)}">${fmtPct(p.growthPct)}</span></div>
-          <div class="acc-q"><span class="acc-qlbl">Max DD</span><span class="acc-qval neg">${fmtPct(p.maxDDPct)}</span></div>
-          <div class="acc-q"><span class="acc-qlbl">Trades</span><span class="acc-qval c-purple">${p.totalTrades||0}</span></div>
+          <div class="acc-q"><span class="acc-qlbl">Profit</span><span class="acc-qval ${colorClass(s5profit)}">${fmtVal(s5profit)}</span></div>
+          <div class="acc-q"><span class="acc-qlbl">Growth</span><span class="acc-qval ${colorClass(s5growth)}">${fmtPct(s5growth)}</span></div>
+          <div class="acc-q"><span class="acc-qlbl">Max DD</span><span class="acc-qval neg">${fmtPct(s5maxDDPct)}</span></div>
+          <div class="acc-q"><span class="acc-qlbl">Trades</span><span class="acc-qval c-purple">${s5trades}</span></div>
           <span class="acc-arrow ${isOpen?'open':''}">▲</span>
         </div>
       </div>
@@ -677,12 +705,12 @@ function renderS5(){
         <div class="acc-stats">
           <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue">${fmtVal(p.equity)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
           <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval c-text1">${fmtVal(p.balance)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow">${fmtVal(p.netDeposit)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow">${fmtVal(s5net)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
           <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval ${colorClass(p.floatPL)}">${fmtVal(p.floatPL)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval ${colorClass(p.totalProfit)}">${fmtVal(p.totalProfit)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval ${colorClass(p.growthPct)}">${fmtPct(p.growthPct)}</div><div class="acc-unit">%</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">${(p.winrate||0).toFixed(1)}%</div><div class="acc-unit">%</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval" style="color:#f5a623">${fmtPct(p.maxDDPct)}</div><div class="acc-unit">%</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval ${colorClass(s5profit)}">${fmtVal(s5profit)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval ${colorClass(s5growth)}">${fmtPct(s5growth)}</div><div class="acc-unit">%</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">${(s5winrate||0).toFixed(1)}%</div><div class="acc-unit">%</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval" style="color:#f5a623">${fmtPct(s5maxDDPct)}</div><div class="acc-unit">%</div></div>
         </div>
         <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:8px">
           อัพเดตล่าสุด: ${gmtToThai(p.tsGMT)}
@@ -732,7 +760,7 @@ function drawEquityChart(portName, chartId){
 
   // สี series — ต้องแยก colors array ออกมาให้ ApexCharts
   const seriesDef = [
-    { key:'balance', name:'Balance', color:'#60b8ff', fn: r=>r.equity||r.balance||0 },
+    { key:'balance', name:'Balance', color:'#60b8ff', fn: r=>r.balance||0 },
     { key:'profit',  name:'Profit',  color:'#00e396', fn: r=>r.totalProfit||0 },
     { key:'maxdd',   name:'Max DD',  color:'#f5a623', fn: r=>r.maxDD||0 }
   ];
@@ -866,7 +894,7 @@ function setRange(btn, range){
   }
   else if(range==='7d'){ from=add(yesterday,-6); to=yesterday; }
   else if(range==='30d'){ from=add(yesterday,-29); to=yesterday; }
-  else if(range==='all'){ from=new Date(2020,0,1); to=yesterday; }
+  else if(range==='all'){ from=new Date(2020,0,1); to=now; }
   document.getElementById('dFrom').value = fmt(from);
   document.getElementById('dTo').value   = fmt(to);
   filterAdvGrid();
