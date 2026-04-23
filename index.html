@@ -589,9 +589,11 @@ function renderS1(){
       let portProfit = 0;
       histKeys.forEach(k => { portProfit += hist[k].dayProfit || 0; });
       totalProfit += portProfit;
-      // Overall Max DD ตลอดชีพ = ใช้จาก live โดยตรง
-      const ddPct = live.maxDDPct || 0;
-      if(ddPct < worstDD) worstDD = ddPct;
+      // Overall Max DD = worst dayMaxDDPct ตลอดชีพ
+      histKeys.forEach(k => {
+        const ddPct = hist[k].dayMaxDDPct || 0;
+        if(ddPct < worstDD) worstDD = ddPct;
+      });
     } else {
       totalNet    += live.netDeposit  || 0;
       totalProfit += live.totalProfit || 0;
@@ -614,14 +616,18 @@ function renderS1(){
 
 // ── S2: REALTIME SUMMARY ─────────────────────────────────
 function renderS2(){
-  // EA คำนวณ profit1h, profit6h, todayProfit มาให้แล้ว → แค่ sum ทุกพอร์ต
   let profit1h=0, profit6h=0, profitToday=0;
   let count1h=0,  count6h=0,  countToday=0;
+  const todayKey = todayKeyTH();
 
-  Object.values(portsData).forEach(p => {
-    if(p.profit1h    !== undefined){ profit1h    += p.profit1h    || 0; count1h++;    }
-    if(p.profit6h    !== undefined){ profit6h    += p.profit6h    || 0; count6h++;    }
-    if(p.todayProfit !== undefined){ profitToday += p.todayProfit || 0; countToday++; }
+  Object.entries(portsData).forEach(([portName, live]) => {
+    // profit1h, profit6h จาก live node
+    if(live.profit1h !== undefined){ profit1h += live.profit1h || 0; count1h++; }
+    if(live.profit6h !== undefined){ profit6h += live.profit6h || 0; count6h++; }
+
+    // todayProfit จาก history วันนี้ (dayProfit)
+    const todH = (historyData[portName] || {})[todayKey] || {};
+    if(todH.dayProfit !== undefined){ profitToday += todH.dayProfit || 0; countToday++; }
   });
 
   setRtCard('s2-1h',    's2-1h-sub',    profit1h,    count1h);
@@ -839,19 +845,23 @@ function renderS5(){
     const lastH5   = hKeys5.length > 0 ? (hist5[hKeys5[hKeys5.length-1]] || {}) : {};
 
     // s5net ต้องประกาศก่อน s5growth
-    const s5net     = lastH5.netDeposit   !== undefined ? lastH5.netDeposit   : (p.netDeposit  || 0);
-    const s5winrate = lastH5.winrate      !== undefined ? lastH5.winrate      : (p.winrate     || 0);
-    const s5trades  = lastH5.totalTrades  !== undefined ? lastH5.totalTrades  : (p.totalTrades || 0);
+    const s5net = lastH5.netDeposit || 0;
 
-    // Total Profit = sum dayProfit ทุกวันตั้งแต่แรก
-    const s5profit  = hKeys5.length > 0
-      ? hKeys5.reduce((acc, k) => acc + (hist5[k].dayProfit || 0), 0)
-      : (p.totalProfit || 0);
-    const s5growth  = (s5net !== 0) ? (s5profit / Math.abs(s5net)) * 100 : (p.growthPct || 0);
+    // คำนวณจาก dayProfit, dayTrades, winTrades ทุกวัน (v3 fields)
+    let s5profitSum=0, s5tradesSum=0, s5winsSum=0;
+    hKeys5.forEach(k => {
+      s5profitSum += hist5[k].dayProfit  || 0;
+      s5tradesSum += hist5[k].dayTrades  || 0;
+      s5winsSum   += hist5[k].winTrades  || 0;
+    });
+    const s5profit  = s5profitSum;
+    const s5trades  = s5tradesSum;
+    const s5winrate = s5tradesSum > 0 ? (s5winsSum / s5tradesSum) * 100 : 0;
+    const s5growth  = (s5net !== 0) ? (s5profit / Math.abs(s5net)) * 100 : 0;
 
-    // Max DD ตลอดชีพพอร์ต = ดึงจาก live.maxDD (EA คำนวณจาก running balance ทั้งหมด)
-    const s5maxDD    = p.maxDD    || 0;
-    const s5maxDDPct = p.maxDDPct || 0;
+    // Max DD = worst dayMaxDD ตลอดชีพ
+    const s5maxDD    = hKeys5.reduce((mn,k) => Math.min(mn, hist5[k].dayMaxDD    || 0), 0);
+    const s5maxDDPct = hKeys5.reduce((mn,k) => Math.min(mn, hist5[k].dayMaxDDPct || 0), 0);
 
     item.innerHTML = `
       <div class="acc-hdr" onclick="toggleAcc(this)">
