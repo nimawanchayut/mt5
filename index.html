@@ -1039,7 +1039,7 @@ function drawEquityChart(portName, chartId){
   const seriesDef = [
     { key:'balance', name:'Balance', color:'#60b8ff', fn: r=>r.balance||0 },
     { key:'profit',  name:'Day Profit', color:'#00e396', fn: r=>r.dayProfit||0 },
-    { key:'maxdd',   name:'Max DD',  color:'#f5a623', fn: r=>r.maxDD||0 }
+    { key:'maxdd',   name:'Max DD',  color:'#f5a623', fn: r=>r.dayMaxDD||0 }
   ];
 
   const activeDefs = seriesDef.filter(d => state[d.key]);
