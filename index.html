@@ -489,8 +489,8 @@ function toggleUnit(){
   document.querySelectorAll('.usc-label, .acc-qunit').forEach(el => {
     el.textContent = isUSD ? 'USD' : 'USC';
   });
-  // force S5 rebuild เพื่อ update ค่าตามหน่วย USD/USC
-  document.querySelectorAll('[id^="acc-"]').forEach(el => { el.innerHTML = ''; });
+  // ล้าง flag itemExists ของ S5 โดยลบ id ออกชั่วคราวแล้วให้ renderS5 rebuild
+  document.querySelectorAll('.acc-item[id^="acc-"]').forEach(el => el.removeAttribute('id'));
   renderAll();
 }
 
