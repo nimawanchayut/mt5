@@ -463,6 +463,8 @@ let advSortAsc     = true;
 let advDateFrom    = null;
 let advDateTo      = null;
 let apexInstances  = {};   // { portName: ApexCharts instance }
+let s5NeedsRebuild = true; // rebuild S5 เมื่อ history เปลี่ยนหรือ unit toggle
+let lastHistoryKey = '';   // hash ของ history data เพื่อ detect การเปลี่ยน
 
 // ══════════════════════════════════════════════════════════
 //  CLOCK (เวลาท้องถิ่นผู้ใช้)
@@ -535,15 +537,36 @@ function startFirebaseListeners(){
     if(!data){ renderAll(); return; }
 
     portsData   = {};
-    historyData = {};
+    const newHistory = {};
 
     Object.keys(data).forEach(portName => {
       const portObj = data[portName];
-      if(portObj.live)    portsData[portName]   = portObj.live;
-      if(portObj.history) historyData[portName] = portObj.history;
+      if(portObj.live)    portsData[portName]  = portObj.live;
+      if(portObj.history) newHistory[portName] = portObj.history;
     });
 
-    renderAll();
+    // ตรวจว่า history เปลี่ยนไหม (เทียบ key count + latest key)
+    const newHistKey = Object.keys(newHistory).sort().map(p => {
+      const keys = Object.keys(newHistory[p]||{});
+      return p + ':' + keys.length + ':' + (keys.sort().pop()||'');
+    }).join('|');
+
+    if(newHistKey !== lastHistoryKey){
+      lastHistoryKey = newHistKey;
+      historyData = newHistory;
+      s5NeedsRebuild = true;
+    }
+
+    // S1-S4 อัพเดททุกครั้ง (เร็ว)
+    renderS1(); renderS2(); renderS3(); renderS4();
+
+    // S5 rebuild เฉพาะเมื่อ history เปลี่ยน
+    if(s5NeedsRebuild){
+      renderS5();
+      s5NeedsRebuild = false;
+    } else {
+      renderS5Light(); // update ค่า realtime เฉพาะส่วนที่จำเป็น ไม่แตะ DOM structure
+    }
   }, error => {
     console.error('Firebase error:', error);
     document.getElementById('connStatus').className = 'conn-status err';
@@ -572,7 +595,9 @@ function renderAll(){
   renderS2();
   renderS3();
   renderS4();
+  s5NeedsRebuild = true;
   renderS5();
+  s5NeedsRebuild = false;
 }
 
 // ── S1: PORTFOLIO OVERVIEW ────────────────────────────────
@@ -849,6 +874,57 @@ function sortAdv(key){
 }
 
 function filterAdvGrid(){ renderS4(); }
+
+// ── S5 Light update — update ค่าตัวเลขอย่างเดียว ไม่ rebuild HTML ไม่แตะ scroll
+function renderS5Light(){
+  sortedPortEntries(portsData).forEach(([portName, p]) => {
+    const item = document.getElementById('acc-' + portName);
+    if(!item) return;
+    const hist5  = historyData[portName] || {};
+    const hKeys5 = Object.keys(hist5).sort();
+    const lastH5 = hKeys5.length > 0 ? (hist5[hKeys5[hKeys5.length-1]] || {}) : {};
+    const s5net = lastH5.netDeposit || 0;
+    let s5profitSum=0, s5tradesSum=0, s5winsSum=0;
+    hKeys5.forEach(k => {
+      s5profitSum += hist5[k].dayProfit || 0;
+      s5tradesSum += hist5[k].dayTrades || 0;
+      s5winsSum   += hist5[k].winTrades || 0;
+    });
+    const s5profit  = s5profitSum;
+    const s5trades  = s5tradesSum;
+    const s5winrate = s5tradesSum > 0 ? (s5winsSum/s5tradesSum)*100 : 0;
+    const s5growth  = s5net !== 0 ? (s5profit/Math.abs(s5net))*100 : 0;
+    const s5maxDD    = hKeys5.reduce((mn,k)=>Math.min(mn,hist5[k].dayMaxDD||0),0);
+    const s5maxDDPct = hKeys5.reduce((mn,k)=>Math.min(mn,hist5[k].dayMaxDDPct||0),0);
+    const todH5 = hist5[todayKeyTH()]||{};
+    const s5eq  = todH5.equity??0, s5bal=todH5.balance??0, s5fl=todH5.floatPL??0;
+
+    // update ด้วย label map
+    const qlbls = item.querySelectorAll('.acc-qlbl');
+    const qmap = {};
+    qlbls.forEach(el => { qmap[el.textContent.trim()] = el.nextElementSibling; });
+    if(qmap['Equity'])  qmap['Equity'].textContent  = fmtVal(s5eq,2,true);
+    if(qmap['Balance']) qmap['Balance'].textContent = fmtVal(s5bal,2,true);
+    if(qmap['Profit'])  { qmap['Profit'].textContent=fmtVal(s5profit); qmap['Profit'].className='acc-qval '+colorClass(s5profit); }
+    if(qmap['Growth%']) { qmap['Growth%'].textContent=fmtPct(s5growth); qmap['Growth%'].className='acc-qval '+colorClass(s5growth); }
+    if(qmap['Max DD'])  qmap['Max DD'].textContent  = fmtVal(s5maxDD);
+    if(qmap['Max DD%']) qmap['Max DD%'].textContent = fmtPct(s5maxDDPct);
+
+    const slbls = item.querySelectorAll('.acc-slbl');
+    const smap = {};
+    slbls.forEach(el => { smap[el.textContent.trim()] = el.nextElementSibling; });
+    if(smap['Equity'])      smap['Equity'].textContent      = fmtVal(s5eq,2,true);
+    if(smap['Balance'])     smap['Balance'].textContent     = fmtVal(s5bal,2,true);
+    if(smap['Net Deposit']) smap['Net Deposit'].textContent = fmtVal(s5net,2,true);
+    if(smap['Float P/L'])   { smap['Float P/L'].textContent=fmtVal(s5fl); smap['Float P/L'].className='acc-sval '+colorClass(s5fl); }
+    if(smap['Total Profit']){ smap['Total Profit'].textContent=fmtVal(s5profit); smap['Total Profit'].className='acc-sval '+colorClass(s5profit); }
+    if(smap['Growth %'])    { smap['Growth %'].textContent=fmtPct(s5growth); smap['Growth %'].className='acc-sval '+colorClass(s5growth); }
+    if(smap['Winrate'])     smap['Winrate'].textContent     = (s5winrate||0).toFixed(1)+'%';
+    if(smap['Max DD'])      smap['Max DD'].textContent      = fmtVal(s5maxDD);
+    if(smap['Max DD%'])     smap['Max DD%'].textContent     = fmtPct(s5maxDDPct);
+    if(smap['Trades'])      smap['Trades'].textContent      = s5trades;
+  });
+}
 
 // ── S5: DEEP-DIVE PORTFOLIO ───────────────────────────────
 function renderS5(){
