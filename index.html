@@ -486,10 +486,11 @@ function toggleUnit(){
   pill.classList.toggle('right', isUSD);
   document.getElementById('lblUSC').className = 'unit-switch-lbl ' + (isUSD ? 'inactive' : 'active');
   document.getElementById('lblUSD').className = 'unit-switch-lbl ' + (isUSD ? 'active'   : 'inactive');
-  // อัพเดท label USC/USD ทุกจุด
   document.querySelectorAll('.usc-label, .acc-qunit').forEach(el => {
     el.textContent = isUSD ? 'USD' : 'USC';
   });
+  // force S5 rebuild เพื่อ update ค่าตามหน่วย USD/USC
+  document.querySelectorAll('[id^="acc-"]').forEach(el => { el.innerHTML = ''; });
   renderAll();
 }
 
