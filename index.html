@@ -875,28 +875,34 @@ function renderS5(){
     }
     // ถ้า item มีอยู่แล้ว → อัพเดทเฉพาะค่า ไม่ rebuild HTML
     if(itemExists){
-      const upd = (sel, val) => { const el = item.querySelector(sel); if(el) el.textContent = val; };
-      upd('.acc-qval.c-blue',   fmtVal(s5eq,2,true));
-      upd('.acc-qval.c-text1',  fmtVal(s5bal,2,true));
-      const qvals = item.querySelectorAll('.acc-qval');
-      if(qvals[2]) { qvals[2].textContent = fmtVal(s5profit); qvals[2].className = 'acc-qval ' + colorClass(s5profit); }
-      if(qvals[3]) { qvals[3].textContent = fmtPct(s5growth);  qvals[3].className = 'acc-qval ' + colorClass(s5growth); }
-      if(qvals[4])   qvals[4].textContent = fmtVal(s5maxDD);
-      if(qvals[5])   qvals[5].textContent = fmtPct(s5maxDDPct);
-      if(qvals[6])   qvals[6].textContent = s5trades;
-      // update acc-stats values
-      const svals = item.querySelectorAll('.acc-sval');
-      if(svals[0]) svals[0].textContent = fmtVal(s5eq,2,true);
-      if(svals[1]) svals[1].textContent = fmtVal(s5bal,2,true);
-      if(svals[2]) svals[2].textContent = fmtVal(s5net,2,true);
-      if(svals[3]) { svals[3].textContent = fmtVal(s5fl); svals[3].className = 'acc-sval ' + colorClass(s5fl); }
-      if(svals[4]) { svals[4].textContent = fmtVal(s5profit); svals[4].className = 'acc-sval ' + colorClass(s5profit); }
-      if(svals[5]) { svals[5].textContent = fmtPct(s5growth); svals[5].className = 'acc-sval ' + colorClass(s5growth); }
-      if(svals[6])   svals[6].textContent = (s5winrate||0).toFixed(1)+'%';
-      if(svals[7])   svals[7].textContent = fmtVal(s5maxDD);
-      if(svals[8])   svals[8].textContent = fmtPct(s5maxDDPct);
-      if(svals[9])   svals[9].textContent = s5trades;
-      // update USC/USD unit labels
+      // update acc-quick values (แถบด่วน)
+      const qlbls = item.querySelectorAll('.acc-qlbl');
+      const qmap = {};
+      qlbls.forEach(el => { qmap[el.textContent.trim()] = el.nextElementSibling; });
+      if(qmap['Equity'])   qmap['Equity'].textContent  = fmtVal(s5eq,2,true);
+      if(qmap['Balance'])  qmap['Balance'].textContent = fmtVal(s5bal,2,true);
+      if(qmap['Profit'])  { qmap['Profit'].textContent = fmtVal(s5profit); qmap['Profit'].className = 'acc-qval '+colorClass(s5profit); }
+      if(qmap['Growth%']) { qmap['Growth%'].textContent = fmtPct(s5growth); qmap['Growth%'].className = 'acc-qval '+colorClass(s5growth); }
+      if(qmap['Max DD'])   qmap['Max DD'].textContent  = fmtVal(s5maxDD);
+      if(qmap['Max DD%'])  qmap['Max DD%'].textContent = fmtPct(s5maxDDPct);
+      if(qmap['Trades'])   qmap['Trades'].textContent  = s5trades;
+
+      // update acc-stats values (ส่วนขยาย)
+      const slbls = item.querySelectorAll('.acc-slbl');
+      const smap = {};
+      slbls.forEach(el => { smap[el.textContent.trim()] = el.nextElementSibling; });
+      if(smap['Equity'])      smap['Equity'].textContent      = fmtVal(s5eq,2,true);
+      if(smap['Balance'])     smap['Balance'].textContent     = fmtVal(s5bal,2,true);
+      if(smap['Net Deposit']) smap['Net Deposit'].textContent = fmtVal(s5net,2,true);
+      if(smap['Float P/L'])   { smap['Float P/L'].textContent = fmtVal(s5fl); smap['Float P/L'].className = 'acc-sval '+colorClass(s5fl); }
+      if(smap['Total Profit']){ smap['Total Profit'].textContent = fmtVal(s5profit); smap['Total Profit'].className = 'acc-sval '+colorClass(s5profit); }
+      if(smap['Growth %'])    { smap['Growth %'].textContent = fmtPct(s5growth); smap['Growth %'].className = 'acc-sval '+colorClass(s5growth); }
+      if(smap['Winrate'])     smap['Winrate'].textContent     = (s5winrate||0).toFixed(1)+'%';
+      if(smap['Max DD'])      smap['Max DD'].textContent      = fmtVal(s5maxDD);
+      if(smap['Max DD%'])     smap['Max DD%'].textContent     = fmtPct(s5maxDDPct);
+      if(smap['Trades'])      smap['Trades'].textContent      = s5trades;
+
+      // update USC/USD labels
       item.querySelectorAll('.usc-label').forEach(el => { el.textContent = unitLabel(); });
       return;
     }
