@@ -491,14 +491,20 @@ function unitLabel(){ return isUSD ? 'USD' : 'USC'; }
 // GMT timestamp → Thai local date string (UTC+7)
 function gmtToThai(tsGMT){
   if(!tsGMT) return '--';
-  const d = new Date(tsGMT * 1000 + 7*3600*1000);
-  return d.toISOString().replace('T',' ').substring(0,19) + ' (TH)';
+  const d = new Date(tsGMT * 1000);
+  return d.toLocaleString('th-TH', {timeZone:'Asia/Bangkok',
+    year:'numeric', month:'2-digit', day:'2-digit',
+    hour:'2-digit', minute:'2-digit', second:'2-digit'}) + ' (TH)';
 }
 
 // วันนี้เป็น YYYYMMDD ตาม TH timezone
 function todayKeyTH(){
-  const d = new Date(Date.now() + 7*3600*1000);
-  return d.toISOString().substring(0,10).replace(/-/g,'');
+  // Firebase ใช้เวลาไทยแล้ว แค่ดึงวันที่ local ของ browser ไทย
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return y + m + dd;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -571,8 +577,9 @@ function renderS1(){
     const hist = historyData[pn] || {};
     const histKeys = Object.keys(hist).sort();
     // ใช้ liveData สำหรับ equity (realtime)
-    totalEquity  += live.equity || 0;
-    totalBalance += live.balance || 0;
+    const todH = (historyData[pn] || {})[todayKeyTH()] || {};
+    totalEquity  += todH.equity  ?? live.equity  ?? 0;
+    totalBalance += todH.balance ?? live.balance ?? 0;
 
     if(histKeys.length > 0){
       const lastKey = histKeys[histKeys.length - 1];
@@ -640,28 +647,39 @@ function renderS3(){
     return;
   }
 
-  tbody.innerHTML = ports.map(([portName, p]) => {
-    const isLive = (p.openPositions || 0) > 0;
-    const statusBadge = isLive
-      ? `<span class="badge-live"><span class="live-dot"></span>Live</span>`
-      : `<span class="badge-idle">Idle</span>`;
-    const floatCls = colorClass(p.floatPL);
-    const profitCls = colorClass(p.todayProfit);
+  const todayKey = todayKeyTH();
 
-    return `<tr>
-      <td><span class="port-name-col">${portName}</span></td>
-      <td>
-        <div class="port-id-col">#${p.login || '--'}</div>
-        <div class="server-col">${p.server || '--'}</div>
-      </td>
-      <td>${statusBadge}</td>
-      <td class="c-blue">${fmtVal(p.equity,2,true)}</td>
-      <td class="c-text1">${fmtVal(p.balance,2,true)}</td>
-      <td class="${profitCls}">${fmtVal(p.todayProfit)}</td>
-      <td class="${floatCls}">${fmtVal(p.floatPL)}</td>
-      <td class="c-amber">${fmtVal(p.todayMaxDD !== undefined ? p.todayMaxDD : (historyData[portName]?.[todayKeyTH()]?.dayMaxDD ?? 0))}</td>
-      <td class="neg">${fmtPct(p.todayMaxDDPct !== undefined ? p.todayMaxDDPct : (historyData[portName]?.[todayKeyTH()]?.dayMaxDDPct ?? 0))}</td>
-    </tr>`;
+  tbody.innerHTML = ports.map(([portName, live]) => {
+    // ดึงข้อมูลหลักจาก history วันนี้
+    const t = (historyData[portName] || {})[todayKey] || {};
+
+    const equity      = t.equity      ?? live.equity      ?? 0;
+    const balance     = t.balance     ?? live.balance     ?? 0;
+    const floatPL     = t.floatPL     ?? live.floatPL     ?? 0;
+    const dayProfit   = t.dayProfit   ?? 0;
+    const dayMaxDD    = t.dayMaxDD    ?? 0;
+    const dayMaxDDPct = t.dayMaxDDPct ?? 0;
+
+    // isLive ยังดึงจาก live node
+    const isLive = (live.openPositions || 0) > 0;
+    const login  = live.login  || '--';
+    const server = live.server || '--';
+
+    const statusBadge = isLive
+      ? '<span class="badge-live"><span class="live-dot"></span>Live</span>'
+      : '<span class="badge-idle">Idle</span>';
+
+    return '<tr>' +
+      '<td><span class="port-name-col">' + portName + '</span></td>' +
+      '<td><div class="port-id-col">#' + login + '</div><div class="server-col">' + server + '</div></td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td class="c-blue">'  + fmtVal(equity,   2, true) + '</td>' +
+      '<td class="c-text1">' + fmtVal(balance,  2, true) + '</td>' +
+      '<td class="' + colorClass(dayProfit) + '">' + fmtVal(dayProfit) + '</td>' +
+      '<td class="' + colorClass(floatPL)   + '">' + fmtVal(floatPL)   + '</td>' +
+      '<td class="c-amber">' + fmtVal(dayMaxDD)            + '</td>' +
+      '<td class="neg">'     + fmtPct(dayMaxDDPct)         + '</td>' +
+    '</tr>';
   }).join('');
 }
 
@@ -681,63 +699,61 @@ function renderS4(){
     const hist     = historyData[portName] || {};
     const histKeys = Object.keys(hist).sort();
 
-    // ถ้าไม่มี history เลย → ใช้ liveData fallback
+    // ไม่มี history เลย → ไม่มีข้อมูล
     if(histKeys.length === 0){
-      return {
-        name: portName, login: liveData.login,
-        equity: liveData.equity||0, balance: liveData.balance||0,
-        netDeposit: liveData.netDeposit||0, profit: liveData.totalProfit||0,
-        growthPct: liveData.growthPct||0, winrate: liveData.winrate||0,
-        maxDD: liveData.maxDD||0, maxDDPct: liveData.maxDDPct||0,
-        trades: liveData.totalTrades||0
-      };
-    }
-
-    // กรอง keys ตาม from/to range
-    const filtered = histKeys.filter(k => {
-      const kFmt = k; // already YYYYMMDD
-      const fFmt = fromKey ? fromKey.replace(/-/g,'') : null;
-      const tFmt = toKey   ? toKey.replace(/-/g,'')   : null;
-      if(fFmt && kFmt < fFmt) return false;
-      if(tFmt && kFmt > tFmt) return false;
-      return true;
-    });
-
-    if(filtered.length === 0){
-      return { name: portName, login: liveData.login,
+      return { name:portName, login:liveData.login,
                equity:0, balance:0, netDeposit:0, profit:0,
                growthPct:0, winrate:0, maxDD:0, maxDDPct:0, trades:0 };
     }
 
-    // ใช้ค่าสะสมจากวันสุดท้ายใน range (cumulative ณ วันนั้น)
+    // แปลง fromKey/toKey เป็น YYYYMMDD
+    const fFmt = fromKey ? fromKey.replace(/-/g,'') : null;
+    const tFmt = toKey   ? toKey.replace(/-/g,'')   : null;
+
+    // กรอง keys ตาม range
+    const filtered = histKeys.filter(k => {
+      if(fFmt && k < fFmt) return false;
+      if(tFmt && k > tFmt) return false;
+      return true;
+    });
+
+    if(filtered.length === 0){
+      return { name:portName, login:liveData.login,
+               equity:0, balance:0, netDeposit:0, profit:0,
+               growthPct:0, winrate:0, maxDD:0, maxDDPct:0, trades:0 };
+    }
+
     const lastKey  = filtered[filtered.length - 1];
     const lastHist = hist[lastKey] || {};
 
-    // sum dayProfit + dayTrades ในช่วงที่เลือก
-    let sumProfit = 0, sumTrades = 0, wSum = 0;
+    // sum ค่ารายวันในช่วง
+    let sumProfit=0, sumTrades=0, sumWins=0, sumDeposit=0;
     filtered.forEach(k => {
       const d = hist[k] || {};
-      sumProfit += d.dayProfit || 0;
-      sumTrades += d.dayTrades || 0;
-      wSum += (d.dayTrades||0) * (d.dayWinrate||0);
+      sumProfit  += d.dayProfit  || 0;
+      sumTrades  += d.dayTrades  || 0;
+      sumWins    += d.winTrades  || 0;   // v3: ใช้ winTrades แทน dayWinrate
+      sumDeposit += d.dayNetDeposit || 0;
     });
-    const periodWinrate = sumTrades > 0 ? wSum / sumTrades : 0;
-    const cumNet = lastHist.netDeposit || liveData.netDeposit || 0;
+    const periodWinrate = sumTrades > 0 ? (sumWins / sumTrades) * 100 : 0;
+    const cumNet = lastHist.netDeposit || 0;
+
+    // maxDD: ถ้าไม่มี fromKey (All) หรือ fromKey <= วันแรก → worst dayMaxDD ทุกวัน
+    const isAllRange = !fFmt || fFmt <= histKeys[0];
+    const worstDD    = filtered.reduce((mn,k) => Math.min(mn, hist[k].dayMaxDD    || 0), 0);
+    const worstDDPct = filtered.reduce((mn,k) => Math.min(mn, hist[k].dayMaxDDPct || 0), 0);
 
     return {
       name:       portName,
       login:      liveData.login,
-      equity:     lastHist.equity   || lastHist.balance || liveData.equity   || 0,
-      balance:    lastHist.balance  || liveData.balance  || 0,
+      equity:     lastHist.equity   || lastHist.balance || 0,
+      balance:    lastHist.balance  || 0,
       netDeposit: cumNet,
       profit:     sumProfit,
-      growthPct:  cumNet !== 0 ? sumProfit / Math.abs(cumNet) * 100 : 0,
+      growthPct:  cumNet !== 0 ? (sumProfit / Math.abs(cumNet)) * 100 : 0,
       winrate:    periodWinrate,
-      // maxDD: ถ้า range ครอบวันแรก → ใช้ live.maxDD (ตลอดชีพ), ไม่งั้นใช้ worst dayMaxDD ในช่วง
-      maxDD:    (fromKey <= histKeys[0]) ? (liveData.maxDD    || 0)
-                : filtered.reduce((mn,k) => Math.min(mn, hist[k].dayMaxDD    || 0), 0),
-      maxDDPct: (fromKey <= histKeys[0]) ? (liveData.maxDDPct || 0)
-                : filtered.reduce((mn,k) => Math.min(mn, hist[k].dayMaxDDPct || 0), 0),
+      maxDD:      worstDD,
+      maxDDPct:   worstDDPct,
       trades:     sumTrades
     };
   }
