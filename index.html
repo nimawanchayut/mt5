@@ -863,6 +863,11 @@ function renderS5(){
     const s5maxDD    = hKeys5.reduce((mn,k) => Math.min(mn, hist5[k].dayMaxDD    || 0), 0);
     const s5maxDDPct = hKeys5.reduce((mn,k) => Math.min(mn, hist5[k].dayMaxDDPct || 0), 0);
 
+    const todH5  = hist5[todayKeyTH()] || {};
+    const s5eq   = todH5.equity  ?? 0;
+    const s5bal  = todH5.balance ?? 0;
+    const s5fl   = todH5.floatPL ?? 0;
+
     item.innerHTML = `
       <div class="acc-hdr" onclick="toggleAcc(this)">
         <div class="acc-left">
@@ -873,11 +878,11 @@ function renderS5(){
         <div class="acc-quick">
           <div class="acc-q">
             <span class="acc-qlbl">Equity</span>
-            <span class="acc-qval c-blue">${fmtVal(p.equity,2,true)}</span>
+            <span class="acc-qval c-blue">${fmtVal(s5eq,2,true)}</span>
           </div>
           <div class="acc-q">
             <span class="acc-qlbl">Balance</span>
-            <span class="acc-qval c-text1">${fmtVal(p.balance,2,true)}</span>
+            <span class="acc-qval c-text1">${fmtVal(s5bal,2,true)}</span>
           </div>
           <div class="acc-q">
             <span class="acc-qlbl">Profit</span>
@@ -904,10 +909,10 @@ function renderS5(){
       </div>
       <div class="acc-body ${isOpen?'open':''}" id="${bodyId}" style="display:${isOpen?'block':'none'}">
         <div class="acc-stats">
-          <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue">${fmtVal(p.equity,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval c-text1">${fmtVal(p.balance,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue">${fmtVal(s5eq,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval c-text1">${fmtVal(s5bal,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
           <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow">${fmtVal(s5net,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval ${colorClass(p.floatPL)}">${fmtVal(p.floatPL)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval ${colorClass(s5fl)}">${fmtVal(s5fl)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
           <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval ${colorClass(s5profit)}">${fmtVal(s5profit)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
           <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval ${colorClass(s5growth)}">${fmtPct(s5growth)}</div><div class="acc-unit">%</div></div>
           <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">${(s5winrate||0).toFixed(1)}%</div><div class="acc-unit">%</div></div>
