@@ -186,7 +186,7 @@
   .acc-qlbl{font-size:12px;color:var(--text3);font-family:var(--font-mono);letter-spacing:.5px;text-transform:uppercase}
   .acc-qval{font-size:13px;font-weight:600;font-family:var(--font-mono);margin-top:1px}
   .acc-qunit{font-size:10px;color:var(--text3);font-family:var(--font-mono);margin-top:1px}
-  .acc-arrow{color:var(--text3);font-size:12px;flex-shrink:0;margin-left:6px;transition:transform .2s}
+  .acc-hdr:has(+ .acc-body.open) .acc-quick { display:none }
   .acc-arrow.open{transform:rotate(180deg)}
   .acc-body{display:none;padding:14px 16px 16px;border-top:1px solid var(--border);background:var(--bg1)}
   .acc-body.open{display:block}
