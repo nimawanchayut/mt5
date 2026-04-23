@@ -117,6 +117,9 @@
   .tbl th:first-child,.tbl th:nth-child(2),.tbl th:nth-child(3){text-align:left}
   .tbl td{padding:14px 16px;text-align:right;border-bottom:1px solid var(--bg0);color:var(--text1)}
   .tbl td:first-child,.tbl td:nth-child(2),.tbl td:nth-child(3){text-align:left}
+  .tbl th:first-child,.tbl td:first-child{position:sticky;left:0;z-index:2;background:var(--bg0)}
+  .tbl tbody td:first-child{background:var(--bg2)}
+  .tbl tbody tr:hover td:first-child{background:var(--bg3)}
   .tbl tbody tr:hover td{background:var(--bg3)}
   .tbl tbody tr:last-child td{border-bottom:none}
   .port-name-col{font-size:14px;font-weight:600;color:var(--text1)}
@@ -150,6 +153,10 @@
   .adv-tbl th:hover{color:var(--blue)}
   .adv-tbl td{padding:13px 14px;text-align:right;border-bottom:1px solid var(--bg0);color:var(--text1)}
   .adv-tbl td:first-child{text-align:left}
+  .adv-tbl th:first-child,.adv-tbl td:first-child{position:sticky;left:0;z-index:2;background:var(--bg0)}
+  .adv-tbl tbody td:first-child{background:var(--bg2)}
+  .adv-tbl tbody tr:hover td:first-child{background:var(--bg3)}
+  .adv-tbl tfoot td:first-child{background:var(--bg3)}
   .adv-tbl tbody tr:hover td{background:var(--bg3)}
   .adv-tbl tbody tr:last-child td{border-bottom:none}
   .adv-tbl tfoot tr td{
@@ -818,18 +825,20 @@ function renderS4(){
   const avgWR      = sumTrades > 0 ? totalW / sumTrades : 0;
 
   const tfoot = document.getElementById('s4-tfoot');
-  if(tfoot) tfoot.innerHTML = `<tr>
-    <td>TOTAL (${ports.length})</td>
-    <td class="c-blue">${fmtVal(sumEq,2,true)}</td>
-    <td class="c-text1">${fmtVal(sumBal,2,true)}</td>
-    <td class="c-yellow">${fmtVal(sumNet,2,true)}</td>
-    <td class="${colorClass(sumProfit)}">${fmtVal(sumProfit)}</td>
-    <td class="${colorClass(sumGrowth)}">${fmtPct(sumGrowth)}</td>
-    <td class="c-orange">${avgWR.toFixed(1)}%</td>
-    <td class="c-amber">${fmtVal(worstDD)}</td>
-    <td class="neg">${fmtPct(worstDDPct)}</td>
-    <td class="c-purple">${sumTrades}</td>
-  </tr>`;
+  if(tfoot){
+    tfoot.innerHTML = '<tr>'
+      + '<td>TOTAL (' + ports.length + ')</td>'
+      + '<td class="c-blue">'  + fmtVal(sumEq,2,true)  + '</td>'
+      + '<td class="c-text1">' + fmtVal(sumBal,2,true) + '</td>'
+      + '<td class="c-yellow">'+ fmtVal(sumNet,2,true) + '</td>'
+      + '<td class="' + colorClass(sumProfit) + '">' + fmtVal(sumProfit)     + '</td>'
+      + '<td class="' + colorClass(sumGrowth) + '">' + fmtPct(sumGrowth)     + '</td>'
+      + '<td class="c-orange">' + avgWR.toFixed(1) + '%</td>'
+      + '<td class="c-amber">'  + fmtVal(worstDD)       + '</td>'
+      + '<td class="neg">'      + fmtPct(worstDDPct)    + '</td>'
+      + '<td class="c-purple">' + sumTrades             + '</td>'
+      + '</tr>';
+  }
 }
 
 function sortAdv(key){
