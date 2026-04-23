@@ -270,6 +270,7 @@
     .acc-portname{font-size:13px}
     .acc-server{font-size:10px}
     .acc-quick{gap:6px;width:100%;justify-content:flex-start;margin-top:4px;flex-wrap:wrap}
+    .acc-q-trades{display:none}
     .acc-qlbl{font-size:10px}
     .acc-qval{font-size:11px}
     .acc-stats{grid-template-columns:repeat(2,1fr);gap:6px}
@@ -943,7 +944,7 @@ function renderS5(){
             <span class="acc-qlbl">Max DD%</span>
             <span class="acc-qval neg">${fmtPct(s5maxDDPct)}</span>
           </div>
-          <div class="acc-q">
+          <div class="acc-q acc-q-trades">
             <span class="acc-qlbl">Trades</span>
             <span class="acc-qval c-purple">${s5trades}</span>
           </div>
@@ -960,6 +961,7 @@ function renderS5(){
           <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval ${colorClass(s5growth)}">${fmtPct(s5growth)}</div><div class="acc-unit">%</div></div>
           <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">${(s5winrate||0).toFixed(1)}%</div><div class="acc-unit">%</div></div>
           <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval c-amber">${fmtVal(s5maxDD)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div><div class="acc-stat"><div class="acc-slbl">Max DD%</div><div class="acc-sval neg">${fmtPct(s5maxDDPct)}</div><div class="acc-unit">%</div></div>
+          <div class="acc-stat"><div class="acc-slbl">Trades</div><div class="acc-sval c-purple">${s5trades}</div><div class="acc-unit">trades</div></div>
         </div>
         <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:8px">
           อัพเดตล่าสุด: ${gmtToThai(p.tsGMT)}
