@@ -693,7 +693,7 @@ function renderS3(){
 
     return '<tr>' +
       '<td><span class="port-name-col">' + portName + '</span></td>' +
-      '<td><div class="port-id-col">#' + login + '</div><div class="server-col">' + server + '</div></td>' +
+      '<td><div class="port-id-col">' + login + '</div><div class="server-col">' + server + '</div></td>' +
       '<td>' + statusBadge + '</td>' +
       '<td class="c-blue">'  + fmtVal(equity,   2, true) + '</td>' +
       '<td class="c-text1">' + fmtVal(balance,  2, true) + '</td>' +
@@ -799,7 +799,7 @@ function renderS4(){
   document.getElementById('s4-count').textContent = ports.length + ' ports';
   tbody.innerHTML = ports.map(p => `
     <tr>
-      <td><div class="adv-portname">${p.name}</div><div class="adv-portid">#${p.login||'--'}</div></td>
+      <td><div class="adv-portname">${p.name}</div><div class="adv-portid">${p.login||'--'}</div></td>
       <td class="c-blue">${fmtVal(p.equity,2,true)}</td>
       <td class="c-text1">${fmtVal(p.balance,2,true)}</td>
       <td class="c-yellow">${fmtVal(p.netDeposit)}</td>
@@ -916,7 +916,7 @@ function renderS5(){
     item.innerHTML = `
       <div class="acc-hdr" onclick="toggleAcc(this)">
         <div class="acc-left">
-          <div><div class="acc-portname">${portName}</div><div class="acc-portid">#${p.login||'--'}</div></div>
+          <div><div class="acc-portname">${portName}</div><div class="acc-portid">${p.login||'--'}</div></div>
           ${statusBadge}
           <span class="acc-server">${p.server||'--'}</span>
         </div>
