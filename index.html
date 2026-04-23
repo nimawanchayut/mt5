@@ -817,20 +817,19 @@ function renderS4(){
   const totalW     = ports.reduce((s,p) => s + p.trades * p.winrate, 0);
   const avgWR      = sumTrades > 0 ? totalW / sumTrades : 0;
 
-  if(tfoot){
-    tfoot.innerHTML = '<tr>'
-      + '<td>TOTAL (' + ports.length + ')</td>'
-      + '<td class="c-blue">'  + fmtVal(sumEq,2,true)  + '</td>'
-      + '<td class="c-text1">' + fmtVal(sumBal,2,true) + '</td>'
-      + '<td class="c-yellow">'+ fmtVal(sumNet,2,true) + '</td>'
-      + '<td class="' + colorClass(sumProfit) + '">' + fmtVal(sumProfit)     + '</td>'
-      + '<td class="' + colorClass(sumGrowth) + '">' + fmtPct(sumGrowth)     + '</td>'
-      + '<td class="c-orange">' + avgWR.toFixed(1) + '%</td>'
-      + '<td class="c-amber">'  + fmtVal(worstDD)       + '</td>'
-      + '<td class="neg">'      + fmtPct(worstDDPct)    + '</td>'
-      + '<td class="c-purple">' + sumTrades             + '</td>'
-      + '</tr>';
-  }
+  const tfoot = document.getElementById('s4-tfoot');
+  if(tfoot) tfoot.innerHTML = `<tr>
+    <td>TOTAL (${ports.length})</td>
+    <td class="c-blue">${fmtVal(sumEq,2,true)}</td>
+    <td class="c-text1">${fmtVal(sumBal,2,true)}</td>
+    <td class="c-yellow">${fmtVal(sumNet,2,true)}</td>
+    <td class="${colorClass(sumProfit)}">${fmtVal(sumProfit)}</td>
+    <td class="${colorClass(sumGrowth)}">${fmtPct(sumGrowth)}</td>
+    <td class="c-orange">${avgWR.toFixed(1)}%</td>
+    <td class="c-amber">${fmtVal(worstDD)}</td>
+    <td class="neg">${fmtPct(worstDDPct)}</td>
+    <td class="c-purple">${sumTrades}</td>
+  </tr>`;
 }
 
 function sortAdv(key){
