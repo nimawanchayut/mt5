@@ -152,6 +152,14 @@
   .adv-tbl td:first-child{text-align:left}
   .adv-tbl tbody tr:hover td{background:var(--bg3)}
   .adv-tbl tbody tr:last-child td{border-bottom:none}
+  .adv-tbl tfoot tr td{
+    padding:11px 14px;text-align:right;
+    font-weight:600;font-family:var(--font-mono);font-size:12px;
+    background:var(--bg3);border-top:2px solid var(--border2);
+    color:var(--text2);
+    position:sticky;bottom:0;z-index:1;
+  }
+  .adv-tbl tfoot tr td:first-child{text-align:left;color:var(--text2);letter-spacing:.5px}
   .sort-icon{color:var(--blue);font-size:10px;margin-left:2px}
   .adv-portname{font-size:13px;font-weight:600;color:var(--text1)}
   .adv-portid{font-size:12px;color:var(--text3);margin-top:1px}
@@ -393,6 +401,7 @@
             <th onclick="sortAdv('trades')">Trades <span class="sort-icon" id="si-trades"></span></th>
           </tr></thead>
           <tbody id="s4-tbody"><tr><td colspan="10" class="no-data">⏳ กำลังโหลดข้อมูล...</td></tr></tbody>
+          <tfoot id="s4-tfoot"></tfoot>
         </table>
       </div>
     </div>
@@ -794,6 +803,33 @@ function renderS4(){
       <td class="neg">${fmtPct(p.maxDDPct)}</td>
       <td class="c-purple">${p.trades}</td>
     </tr>`).join('');
+
+  // ── Sum row ──
+  const sumEq      = ports.reduce((s,p) => s + p.equity,     0);
+  const sumBal     = ports.reduce((s,p) => s + p.balance,    0);
+  const sumNet     = ports.reduce((s,p) => s + p.netDeposit, 0);
+  const sumProfit  = ports.reduce((s,p) => s + p.profit,     0);
+  const sumTrades  = ports.reduce((s,p) => s + p.trades,     0);
+  const sumGrowth  = sumNet !== 0 ? (sumProfit / Math.abs(sumNet)) * 100 : 0;
+  const worstDD    = ports.reduce((mn,p) => Math.min(mn, p.maxDD),    0);
+  const worstDDPct = ports.reduce((mn,p) => Math.min(mn, p.maxDDPct), 0);
+  // weighted winrate
+  const totalW     = ports.reduce((s,p) => s + p.trades * p.winrate, 0);
+  const avgWR      = sumTrades > 0 ? totalW / sumTrades : 0;
+
+  const tfoot = document.getElementById('s4-tfoot');
+  if(tfoot) tfoot.innerHTML = `<tr>
+    <td>TOTAL (${ports.length})</td>
+    <td class="c-blue">${fmtVal(sumEq,2,true)}</td>
+    <td class="c-text1">${fmtVal(sumBal,2,true)}</td>
+    <td class="c-yellow">${fmtVal(sumNet,2,true)}</td>
+    <td class="${colorClass(sumProfit)}">${fmtVal(sumProfit)}</td>
+    <td class="${colorClass(sumGrowth)}">${fmtPct(sumGrowth)}</td>
+    <td class="c-orange">${avgWR.toFixed(1)}%</td>
+    <td class="c-amber">${fmtVal(worstDD)}</td>
+    <td class="neg">${fmtPct(worstDDPct)}</td>
+    <td class="c-purple">${sumTrades}</td>
+  </tr>`;
 }
 
 function sortAdv(key){
