@@ -860,71 +860,23 @@ function renderS5(){
     container.innerHTML = '<div class="no-data" style="padding:30px">ยังไม่มีข้อมูลจาก EA · รอการเชื่อมต่อ...</div>';
     return;
   }
-  // ลบ loading placeholder ออก
+
+  // จำ state ว่า accordion ตัวไหนเปิดอยู่ก่อน rebuild
+  const openSet = new Set();
+  container.querySelectorAll('.acc-item').forEach(el => {
+    if(el.querySelector('.acc-body.open')) openSet.add(el.id);
+  });
+
+  // ลบ loading placeholder
   const loadingEl = container.querySelector('.no-data');
   if(loadingEl) loadingEl.remove();
 
   ports.forEach(([portName, p]) => {
-    let item = document.getElementById('acc-' + portName);
-    const itemExists = !!item;
-    if(!item){
-      item = document.createElement('div');
-      item.className = 'acc-item';
-      item.id = 'acc-' + portName;
-      container.appendChild(item);
-    }
-    // ถ้า item มีอยู่แล้ว → อัพเดทเฉพาะค่า ไม่ rebuild HTML
-    if(itemExists){
-      // update acc-quick values (แถบด่วน)
-      const qlbls = item.querySelectorAll('.acc-qlbl');
-      const qmap = {};
-      qlbls.forEach(el => { qmap[el.textContent.trim()] = el.nextElementSibling; });
-      if(qmap['Equity'])   qmap['Equity'].textContent  = fmtVal(s5eq,2,true);
-      if(qmap['Balance'])  qmap['Balance'].textContent = fmtVal(s5bal,2,true);
-      if(qmap['Profit'])  { qmap['Profit'].textContent = fmtVal(s5profit); qmap['Profit'].className = 'acc-qval '+colorClass(s5profit); }
-      if(qmap['Growth%']) { qmap['Growth%'].textContent = fmtPct(s5growth); qmap['Growth%'].className = 'acc-qval '+colorClass(s5growth); }
-      if(qmap['Max DD'])   qmap['Max DD'].textContent  = fmtVal(s5maxDD);
-      if(qmap['Max DD%'])  qmap['Max DD%'].textContent = fmtPct(s5maxDDPct);
-      if(qmap['Trades'])   qmap['Trades'].textContent  = s5trades;
+    const hist5  = historyData[portName] || {};
+    const hKeys5 = Object.keys(hist5).sort();
+    const lastH5 = hKeys5.length > 0 ? (hist5[hKeys5[hKeys5.length-1]] || {}) : {};
 
-      // update acc-stats values (ส่วนขยาย)
-      const slbls = item.querySelectorAll('.acc-slbl');
-      const smap = {};
-      slbls.forEach(el => { smap[el.textContent.trim()] = el.nextElementSibling; });
-      if(smap['Equity'])      smap['Equity'].textContent      = fmtVal(s5eq,2,true);
-      if(smap['Balance'])     smap['Balance'].textContent     = fmtVal(s5bal,2,true);
-      if(smap['Net Deposit']) smap['Net Deposit'].textContent = fmtVal(s5net,2,true);
-      if(smap['Float P/L'])   { smap['Float P/L'].textContent = fmtVal(s5fl); smap['Float P/L'].className = 'acc-sval '+colorClass(s5fl); }
-      if(smap['Total Profit']){ smap['Total Profit'].textContent = fmtVal(s5profit); smap['Total Profit'].className = 'acc-sval '+colorClass(s5profit); }
-      if(smap['Growth %'])    { smap['Growth %'].textContent = fmtPct(s5growth); smap['Growth %'].className = 'acc-sval '+colorClass(s5growth); }
-      if(smap['Winrate'])     smap['Winrate'].textContent     = (s5winrate||0).toFixed(1)+'%';
-      if(smap['Max DD'])      smap['Max DD'].textContent      = fmtVal(s5maxDD);
-      if(smap['Max DD%'])     smap['Max DD%'].textContent     = fmtPct(s5maxDDPct);
-      if(smap['Trades'])      smap['Trades'].textContent      = s5trades;
-
-      // update USC/USD labels
-      item.querySelectorAll('.usc-label').forEach(el => { el.textContent = unitLabel(); });
-      return;
-    }
-
-    const isLive = (p.openPositions || 0) > 0;
-    const statusBadge = isLive
-      ? `<span class="badge-live"><span class="live-dot"></span>Live</span>`
-      : `<span class="badge-idle">Idle</span>`;
-
-    const bodyId   = 'accbody-' + portName;
-    const chartId  = 'chart-'   + portName;
-    const isOpen   = item.querySelector('.acc-body.open') !== null;
-
-    // ดึงค่าสถิติจาก history วันล่าสุด
-    const hist5    = historyData[portName] || {};
-    const hKeys5   = Object.keys(hist5).sort();
-    const lastH5   = hKeys5.length > 0 ? (hist5[hKeys5[hKeys5.length-1]] || {}) : {};
-
-    // s5net ต้องประกาศก่อน s5growth
     const s5net = lastH5.netDeposit || 0;
-
-    // คำนวณจาก dayProfit, dayTrades, winTrades ทุกวัน (v3 fields)
     let s5profitSum=0, s5tradesSum=0, s5winsSum=0;
     hKeys5.forEach(k => {
       s5profitSum += hist5[k].dayProfit  || 0;
@@ -934,80 +886,73 @@ function renderS5(){
     const s5profit  = s5profitSum;
     const s5trades  = s5tradesSum;
     const s5winrate = s5tradesSum > 0 ? (s5winsSum / s5tradesSum) * 100 : 0;
-    const s5growth  = (s5net !== 0) ? (s5profit / Math.abs(s5net)) * 100 : 0;
-
-    // Max DD = worst dayMaxDD ตลอดชีพ
+    const s5growth  = s5net !== 0 ? (s5profit / Math.abs(s5net)) * 100 : 0;
     const s5maxDD    = hKeys5.reduce((mn,k) => Math.min(mn, hist5[k].dayMaxDD    || 0), 0);
     const s5maxDDPct = hKeys5.reduce((mn,k) => Math.min(mn, hist5[k].dayMaxDDPct || 0), 0);
+    const todH5 = hist5[todayKeyTH()] || {};
+    const s5eq  = todH5.equity  ?? 0;
+    const s5bal = todH5.balance ?? 0;
+    const s5fl  = todH5.floatPL ?? 0;
 
-    const todH5  = hist5[todayKeyTH()] || {};
-    const s5eq   = todH5.equity  ?? 0;
-    const s5bal  = todH5.balance ?? 0;
-    const s5fl   = todH5.floatPL ?? 0;
+    const isLive = (p.openPositions || 0) > 0;
+    const statusBadge = isLive
+      ? '<span class="badge-live"><span class="live-dot"></span>Live</span>'
+      : '<span class="badge-idle">Idle</span>';
 
-    item.innerHTML = `
-      <div class="acc-hdr" onclick="toggleAcc(this)">
-        <div class="acc-left">
-          <div><div class="acc-portname">${portName}</div><div class="acc-portid">${p.login||'--'}</div></div>
-          ${statusBadge}
-          <span class="acc-server">${p.server||'--'}</span>
-        </div>
-        <div class="acc-quick">
-          <div class="acc-q">
-            <span class="acc-qlbl">Equity</span>
-            <span class="acc-qval c-blue">${fmtVal(s5eq,2,true)}</span>
-          </div>
-          <div class="acc-q">
-            <span class="acc-qlbl">Balance</span>
-            <span class="acc-qval c-text1">${fmtVal(s5bal,2,true)}</span>
-          </div>
-          <div class="acc-q">
-            <span class="acc-qlbl">Profit</span>
-            <span class="acc-qval ${colorClass(s5profit)}">${fmtVal(s5profit)}</span>
-          </div>
-          <div class="acc-q">
-            <span class="acc-qlbl">Growth%</span>
-            <span class="acc-qval ${colorClass(s5growth)}">${fmtPct(s5growth)}</span>
-          </div>
-          <div class="acc-q">
-            <span class="acc-qlbl">Max DD</span>
-            <span class="acc-qval c-amber">${fmtVal(s5maxDD)}</span>
-          </div>
-          <div class="acc-q">
-            <span class="acc-qlbl">Max DD%</span>
-            <span class="acc-qval neg">${fmtPct(s5maxDDPct)}</span>
-          </div>
-          <div class="acc-q acc-q-trades">
-            <span class="acc-qlbl">Trades</span>
-            <span class="acc-qval c-purple">${s5trades}</span>
-          </div>
-          <span class="acc-arrow ${isOpen?'open':''}">▲</span>
-        </div>
-      </div>
-      <div class="acc-body ${isOpen?'open':''}" id="${bodyId}" style="display:${isOpen?'block':'none'}">
-        <div class="acc-stats">
-          <div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue">${fmtVal(s5eq,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval c-text1">${fmtVal(s5bal,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow">${fmtVal(s5net,2,true)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval ${colorClass(s5fl)}">${fmtVal(s5fl)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval ${colorClass(s5profit)}">${fmtVal(s5profit)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval ${colorClass(s5growth)}">${fmtPct(s5growth)}</div><div class="acc-unit">%</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">${(s5winrate||0).toFixed(1)}%</div><div class="acc-unit">%</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval c-amber">${fmtVal(s5maxDD)}</div><div class="acc-unit usc-label">${unitLabel()}</div></div><div class="acc-stat"><div class="acc-slbl">Max DD%</div><div class="acc-sval neg">${fmtPct(s5maxDDPct)}</div><div class="acc-unit">%</div></div>
-          <div class="acc-stat"><div class="acc-slbl">Trades</div><div class="acc-sval c-purple">${s5trades}</div><div class="acc-unit">trades</div></div>
-        </div>
-        <div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:8px">
-          อัพเดตล่าสุด: ${gmtToThai(p.tsGMT)}
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="ctoggle-${portName}">
-          <button class="cbtn ${getActiveSeries(portName).balance?'active':''}" data-series="balance" onclick="toggleSeries(this,'${portName}')">Balance</button>
-          <button class="cbtn ${getActiveSeries(portName).profit?'active':''}"  data-series="profit"  onclick="toggleSeries(this,'${portName}')">Profit</button>
-          <button class="cbtn ${getActiveSeries(portName).maxdd?'active':''}"   data-series="maxdd"   onclick="toggleSeries(this,'${portName}')">Max DD</button>
-        </div>
-        <div id="${chartId}"></div>
-      </div>`;
+    const itemId  = 'acc-' + portName;
+    const bodyId  = 'accbody-' + portName;
+    const chartId = 'chart-' + portName;
+    const isOpen  = openSet.has(itemId);
+    const serState = getActiveSeries(portName);
 
-    // วาดกราฟถ้า body เปิดอยู่
+    let item = document.getElementById(itemId);
+    if(!item){
+      item = document.createElement('div');
+      item.className = 'acc-item';
+      item.id = itemId;
+      container.appendChild(item);
+    }
+
+    item.innerHTML =
+      '<div class="acc-hdr" onclick="toggleAcc(this)">' +
+        '<div class="acc-left">' +
+          '<div><div class="acc-portname">' + portName + '</div><div class="acc-portid">' + (p.login||'--') + '</div></div>' +
+          statusBadge +
+          '<span class="acc-server">' + (p.server||'--') + '</span>' +
+        '</div>' +
+        '<div class="acc-quick">' +
+          '<div class="acc-q"><span class="acc-qlbl">Equity</span><span class="acc-qval c-blue">'  + fmtVal(s5eq,2,true) + '</span></div>' +
+          '<div class="acc-q"><span class="acc-qlbl">Balance</span><span class="acc-qval c-text1">' + fmtVal(s5bal,2,true) + '</span></div>' +
+          '<div class="acc-q"><span class="acc-qlbl">Profit</span><span class="acc-qval '  + colorClass(s5profit)  + '">' + fmtVal(s5profit)  + '</span></div>' +
+          '<div class="acc-q"><span class="acc-qlbl">Growth%</span><span class="acc-qval ' + colorClass(s5growth)  + '">' + fmtPct(s5growth)  + '</span></div>' +
+          '<div class="acc-q"><span class="acc-qlbl">Max DD</span><span class="acc-qval c-amber">' + fmtVal(s5maxDD)    + '</span></div>' +
+          '<div class="acc-q"><span class="acc-qlbl">Max DD%</span><span class="acc-qval neg">'   + fmtPct(s5maxDDPct) + '</span></div>' +
+          '<div class="acc-q acc-q-trades"><span class="acc-qlbl">Trades</span><span class="acc-qval c-purple">' + s5trades + '</span></div>' +
+          '<span class="acc-arrow' + (isOpen?' open':'') + '">▲</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="acc-body' + (isOpen?' open':'') + '" id="' + bodyId + '" style="display:' + (isOpen?'block':'none') + '">' +
+        '<div class="acc-stats">' +
+          '<div class="acc-stat"><div class="acc-slbl">Equity</div><div class="acc-sval c-blue">'         + fmtVal(s5eq,2,true)   + '</div><div class="acc-unit usc-label">' + unitLabel() + '</div></div>' +
+          '<div class="acc-stat"><div class="acc-slbl">Balance</div><div class="acc-sval c-text1">'       + fmtVal(s5bal,2,true)  + '</div><div class="acc-unit usc-label">' + unitLabel() + '</div></div>' +
+          '<div class="acc-stat"><div class="acc-slbl">Net Deposit</div><div class="acc-sval c-yellow">'  + fmtVal(s5net,2,true)  + '</div><div class="acc-unit usc-label">' + unitLabel() + '</div></div>' +
+          '<div class="acc-stat"><div class="acc-slbl">Float P/L</div><div class="acc-sval '             + colorClass(s5fl)      + '">' + fmtVal(s5fl)    + '</div><div class="acc-unit usc-label">' + unitLabel() + '</div></div>' +
+          '<div class="acc-stat"><div class="acc-slbl">Total Profit</div><div class="acc-sval '          + colorClass(s5profit)  + '">' + fmtVal(s5profit) + '</div><div class="acc-unit usc-label">' + unitLabel() + '</div></div>' +
+          '<div class="acc-stat"><div class="acc-slbl">Growth %</div><div class="acc-sval '              + colorClass(s5growth)  + '">' + fmtPct(s5growth) + '</div><div class="acc-unit">%</div></div>' +
+          '<div class="acc-stat"><div class="acc-slbl">Winrate</div><div class="acc-sval c-orange">'     + (s5winrate||0).toFixed(1) + '%</div><div class="acc-unit">%</div></div>' +
+          '<div class="acc-stat"><div class="acc-slbl">Max DD</div><div class="acc-sval c-amber">'       + fmtVal(s5maxDD)       + '</div><div class="acc-unit usc-label">' + unitLabel() + '</div></div>' +
+          '<div class="acc-stat"><div class="acc-slbl">Max DD%</div><div class="acc-sval neg">'          + fmtPct(s5maxDDPct)    + '</div><div class="acc-unit">%</div></div>' +
+          '<div class="acc-stat"><div class="acc-slbl">Trades</div><div class="acc-sval c-purple">'      + s5trades              + '</div><div class="acc-unit">trades</div></div>' +
+        '</div>' +
+        '<div style="font-size:11px;color:var(--text3);font-family:var(--font-mono);margin-bottom:8px">อัพเดตล่าสุด: ' + gmtToThai(p.tsGMT) + '</div>' +
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="ctoggle-' + portName + '">' +
+          '<button class="cbtn ' + (serState.balance?'active':'') + '" data-series="balance" onclick="toggleSeries(this,\'' + portName + '\')">Balance</button>' +
+          '<button class="cbtn ' + (serState.profit ?'active':'') + '" data-series="profit"  onclick="toggleSeries(this,\'' + portName + '\')">Profit</button>' +
+          '<button class="cbtn ' + (serState.maxdd  ?'active':'') + '" data-series="maxdd"   onclick="toggleSeries(this,\'' + portName + '\')">Max DD</button>' +
+        '</div>' +
+        '<div id="' + chartId + '"></div>' +
+      '</div>';
+
     if(isOpen) drawEquityChart(portName, chartId);
   });
 }
