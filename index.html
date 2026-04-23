@@ -900,6 +900,19 @@ function renderS5Light(){
     const todH5 = hist5[todayKeyTH()]||{};
     const s5eq  = todH5.equity??0, s5bal=todH5.balance??0, s5fl=todH5.floatPL??0;
 
+    // update live status badge
+    const isLive = (p.openPositions || 0) > 0;
+    const badge = item.querySelector('.badge-live, .badge-idle');
+    if(badge){
+      if(isLive && badge.classList.contains('badge-idle')){
+        badge.className = 'badge-live';
+        badge.innerHTML = '<span class="live-dot"></span>Live';
+      } else if(!isLive && badge.classList.contains('badge-live')){
+        badge.className = 'badge-idle';
+        badge.textContent = 'Idle';
+      }
+    }
+
     // update ด้วย label map
     const qlbls = item.querySelectorAll('.acc-qlbl');
     const qmap = {};
