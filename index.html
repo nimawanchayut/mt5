@@ -489,8 +489,6 @@ function toggleUnit(){
   document.querySelectorAll('.usc-label, .acc-qunit').forEach(el => {
     el.textContent = isUSD ? 'USD' : 'USC';
   });
-  // ล้าง flag itemExists ของ S5 โดยลบ id ออกชั่วคราวแล้วให้ renderS5 rebuild
-  document.querySelectorAll('.acc-item[id^="acc-"]').forEach(el => el.removeAttribute('id'));
   renderAll();
 }
 
@@ -886,7 +884,7 @@ function renderS5(){
       if(qvals[4])   qvals[4].textContent = fmtVal(s5maxDD);
       if(qvals[5])   qvals[5].textContent = fmtPct(s5maxDDPct);
       if(qvals[6])   qvals[6].textContent = s5trades;
-      // update acc-stats
+      // update acc-stats values
       const svals = item.querySelectorAll('.acc-sval');
       if(svals[0]) svals[0].textContent = fmtVal(s5eq,2,true);
       if(svals[1]) svals[1].textContent = fmtVal(s5bal,2,true);
@@ -898,7 +896,9 @@ function renderS5(){
       if(svals[7])   svals[7].textContent = fmtVal(s5maxDD);
       if(svals[8])   svals[8].textContent = fmtPct(s5maxDDPct);
       if(svals[9])   svals[9].textContent = s5trades;
-      return; // ไม่ต้อง rebuild innerHTML
+      // update USC/USD unit labels
+      item.querySelectorAll('.usc-label').forEach(el => { el.textContent = unitLabel(); });
+      return;
     }
 
     const isLive = (p.openPositions || 0) > 0;
