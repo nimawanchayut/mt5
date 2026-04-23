@@ -965,9 +965,9 @@ function renderS5(){
           อัพเดตล่าสุด: ${gmtToThai(p.tsGMT)}
         </div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="ctoggle-${portName}">
-          <button class="cbtn active" data-series="balance"  onclick="toggleSeries(this,'${portName}')">Balance</button>
-          <button class="cbtn active" data-series="profit"   onclick="toggleSeries(this,'${portName}')">Profit</button>
-          <button class="cbtn"        data-series="maxdd"    onclick="toggleSeries(this,'${portName}')">Max DD</button>
+          <button class="cbtn ${getActiveSeries(portName).balance?'active':''}" data-series="balance" onclick="toggleSeries(this,'${portName}')">Balance</button>
+          <button class="cbtn ${getActiveSeries(portName).profit?'active':''}"  data-series="profit"  onclick="toggleSeries(this,'${portName}')">Profit</button>
+          <button class="cbtn ${getActiveSeries(portName).maxdd?'active':''}"   data-series="maxdd"   onclick="toggleSeries(this,'${portName}')">Max DD</button>
         </div>
         <div id="${chartId}"></div>
       </div>`;
@@ -1091,6 +1091,7 @@ function drawEquityChart(portName, chartId){
       enabled:true,
       shared:true,
       intersect:false,
+      followCursor:true,
       theme: isDark ? 'dark' : 'light',
       x:{ format:'dd MMM yyyy' },
       y:{ formatter: v => fmtVal(v)+' '+unitLabel() }
