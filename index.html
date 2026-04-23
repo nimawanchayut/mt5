@@ -541,19 +541,20 @@ function startFirebaseListeners(){
 
     Object.keys(data).forEach(portName => {
       const portObj = data[portName];
-      if(portObj.live)    portsData[portName]  = portObj.live;
-      if(portObj.history) newHistory[portName] = portObj.history;
+      if(portObj.live)    portsData[portName]    = portObj.live;
+      if(portObj.history) newHistory[portName]   = portObj.history;
     });
 
-    // ตรวจว่า history เปลี่ยนไหม (เทียบ key count + latest key)
+    // ตรวจว่า history structure เปลี่ยนไหม (มีวันใหม่เพิ่มหรือไม่)
     const newHistKey = Object.keys(newHistory).sort().map(p => {
       const keys = Object.keys(newHistory[p]||{});
       return p + ':' + keys.length + ':' + (keys.sort().pop()||'');
     }).join('|');
 
+    historyData = newHistory; // อัพเดททุกครั้งเพื่อให้ S1/S3 ได้ค่าล่าสุด
+
     if(newHistKey !== lastHistoryKey){
       lastHistoryKey = newHistKey;
-      historyData = newHistory;
       s5NeedsRebuild = true;
     }
 
