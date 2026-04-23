@@ -817,8 +817,20 @@ function renderS4(){
   const totalW     = ports.reduce((s,p) => s + p.trades * p.winrate, 0);
   const avgWR      = sumTrades > 0 ? totalW / sumTrades : 0;
 
-  const tfoot = document.getElementById('s4-tfoot');
-  if(tfoot) tfoot.innerHTML = `<tr>
+  if(tfoot) tfoot.innerHTML = `
+  <tr style="border-top:2px solid var(--border2)">
+    <td style="font-size:10px;color:var(--text3);font-weight:400;letter-spacing:.5px;padding:6px 14px;background:var(--bg2)">PORT</td>
+    <td style="font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)">EQUITY</td>
+    <td style="font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)">BALANCE</td>
+    <td style="font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)">NET DEPOSIT</td>
+    <td style="font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)">PROFIT</td>
+    <td style="font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)">GROWTH%</td>
+    <td style="font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)">WINRATE</td>
+    <td style="font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)">MAX DD</td>
+    <td style="font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)">MAX DD%</td>
+    <td style="font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)">TRADES</td>
+  </tr>
+  <tr>
     <td>TOTAL (${ports.length})</td>
     <td class="c-blue">${fmtVal(sumEq,2,true)}</td>
     <td class="c-text1">${fmtVal(sumBal,2,true)}</td>
