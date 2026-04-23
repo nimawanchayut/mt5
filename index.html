@@ -818,29 +818,18 @@ function renderS4(){
   const avgWR      = sumTrades > 0 ? totalW / sumTrades : 0;
 
   if(tfoot){
-    const hdrStyle = 'font-size:10px;color:var(--text3);font-weight:400;background:var(--bg2)';
-    const hdrStyleFirst = hdrStyle + ';letter-spacing:.5px;padding:6px 14px;text-align:left';
-    const cols = ['PORT','EQUITY','BALANCE','NET DEPOSIT','PROFIT','GROWTH%','WINRATE','MAX DD','MAX DD%','TRADES'];
-    let hdrRow = '<tr style="border-top:2px solid var(--border2)">';
-    cols.forEach((c,i) => {
-      hdrRow += '<td style="' + (i===0 ? hdrStyleFirst : hdrStyle) + '">' + c + '</td>';
-    });
-    hdrRow += '</tr>';
-
-    const sumRow = '<tr>'
+    tfoot.innerHTML = '<tr>'
       + '<td>TOTAL (' + ports.length + ')</td>'
       + '<td class="c-blue">'  + fmtVal(sumEq,2,true)  + '</td>'
       + '<td class="c-text1">' + fmtVal(sumBal,2,true) + '</td>'
       + '<td class="c-yellow">'+ fmtVal(sumNet,2,true) + '</td>'
-      + '<td class="' + colorClass(sumProfit)  + '">' + fmtVal(sumProfit)        + '</td>'
-      + '<td class="' + colorClass(sumGrowth)  + '">' + fmtPct(sumGrowth)        + '</td>'
+      + '<td class="' + colorClass(sumProfit) + '">' + fmtVal(sumProfit)     + '</td>'
+      + '<td class="' + colorClass(sumGrowth) + '">' + fmtPct(sumGrowth)     + '</td>'
       + '<td class="c-orange">' + avgWR.toFixed(1) + '%</td>'
       + '<td class="c-amber">'  + fmtVal(worstDD)       + '</td>'
       + '<td class="neg">'      + fmtPct(worstDDPct)    + '</td>'
       + '<td class="c-purple">' + sumTrades             + '</td>'
       + '</tr>';
-
-    tfoot.innerHTML = hdrRow + sumRow;
   }
 }
 
