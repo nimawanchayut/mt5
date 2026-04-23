@@ -867,11 +867,37 @@ function renderS5(){
 
   ports.forEach(([portName, p]) => {
     let item = document.getElementById('acc-' + portName);
+    const itemExists = !!item;
     if(!item){
       item = document.createElement('div');
       item.className = 'acc-item';
       item.id = 'acc-' + portName;
       container.appendChild(item);
+    }
+    // ถ้า item มีอยู่แล้ว → อัพเดทเฉพาะค่า ไม่ rebuild HTML
+    if(itemExists){
+      const upd = (sel, val) => { const el = item.querySelector(sel); if(el) el.textContent = val; };
+      upd('.acc-qval.c-blue',   fmtVal(s5eq,2,true));
+      upd('.acc-qval.c-text1',  fmtVal(s5bal,2,true));
+      const qvals = item.querySelectorAll('.acc-qval');
+      if(qvals[2]) { qvals[2].textContent = fmtVal(s5profit); qvals[2].className = 'acc-qval ' + colorClass(s5profit); }
+      if(qvals[3]) { qvals[3].textContent = fmtPct(s5growth);  qvals[3].className = 'acc-qval ' + colorClass(s5growth); }
+      if(qvals[4])   qvals[4].textContent = fmtVal(s5maxDD);
+      if(qvals[5])   qvals[5].textContent = fmtPct(s5maxDDPct);
+      if(qvals[6])   qvals[6].textContent = s5trades;
+      // update acc-stats
+      const svals = item.querySelectorAll('.acc-sval');
+      if(svals[0]) svals[0].textContent = fmtVal(s5eq,2,true);
+      if(svals[1]) svals[1].textContent = fmtVal(s5bal,2,true);
+      if(svals[2]) svals[2].textContent = fmtVal(s5net,2,true);
+      if(svals[3]) { svals[3].textContent = fmtVal(s5fl); svals[3].className = 'acc-sval ' + colorClass(s5fl); }
+      if(svals[4]) { svals[4].textContent = fmtVal(s5profit); svals[4].className = 'acc-sval ' + colorClass(s5profit); }
+      if(svals[5]) { svals[5].textContent = fmtPct(s5growth); svals[5].className = 'acc-sval ' + colorClass(s5growth); }
+      if(svals[6])   svals[6].textContent = (s5winrate||0).toFixed(1)+'%';
+      if(svals[7])   svals[7].textContent = fmtVal(s5maxDD);
+      if(svals[8])   svals[8].textContent = fmtPct(s5maxDDPct);
+      if(svals[9])   svals[9].textContent = s5trades;
+      return; // ไม่ต้อง rebuild innerHTML
     }
 
     const isLive = (p.openPositions || 0) > 0;
@@ -984,7 +1010,7 @@ const chartSeriesState = {}; // { portName: {balance:true, profit:true, maxdd:fa
 
 function getActiveSeries(portName){
   if(!chartSeriesState[portName])
-    chartSeriesState[portName] = { balance:true, profit:true, maxdd:false };
+    chartSeriesState[portName] = { balance:true, profit:true, maxdd:true };
   return chartSeriesState[portName];
 }
 
