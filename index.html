@@ -361,7 +361,7 @@
     <div class="table-wrap">
       <table class="tbl">
         <thead><tr>
-          <th>Port</th><th>Port ID / Server</th><th>Status</th>
+          <th>Port</th><th>EA Name</th><th>Status</th>
           <th>Equity<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span></th><th>Balance<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span></th><th>Today Profit<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span></th>
           <th>Float<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span></th><th>Max DD<br><span class="th-unit usc-label" style="font-size:10px;font-weight:400;color:var(--text3)">USC</span></th><th>Max DD%</th>
         </tr></thead>
@@ -715,9 +715,10 @@ function renderS3(){
       ? '<span class="badge-live"><span class="live-dot"></span>Live</span>'
       : '<span class="badge-idle">Idle</span>';
 
+    const eaName = live.eaName || '--';
     return '<tr>' +
-      '<td><span class="port-name-col">' + portName + '</span></td>' +
-      '<td><div class="port-id-col">' + login + '</div><div class="server-col">' + server + '</div></td>' +
+      '<td><div class="port-name-col">' + portName + '</div><div class="port-id-col">' + login + '</div></td>' +
+      '<td><div class="server-col">' + eaName + '</div></td>' +
       '<td>' + statusBadge + '</td>' +
       '<td class="c-blue">'  + fmtVal(equity,   2, true) + '</td>' +
       '<td class="c-text1">' + fmtVal(balance,  2, true) + '</td>' +
