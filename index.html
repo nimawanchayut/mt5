@@ -464,6 +464,7 @@ let advSortAsc     = true;
 let advDateFrom    = null;
 let advDateTo      = null;
 let apexInstances  = {};   // { portName: ApexCharts instance }
+let eaNameCache    = {};   // { portName: last known eaName }
 let s5NeedsRebuild = true; // rebuild S5 เมื่อ history เปลี่ยนหรือ unit toggle
 let lastHistoryKey = '';   // hash ของ history data เพื่อ detect การเปลี่ยน
 
@@ -542,8 +543,13 @@ function startFirebaseListeners(){
 
     Object.keys(data).forEach(portName => {
       const portObj = data[portName];
-      if(portObj.live)    portsData[portName]    = portObj.live;
-      if(portObj.history) newHistory[portName]   = portObj.history;
+      if(portObj.live){
+        portsData[portName] = portObj.live;
+        // cache eaName ถ้ามีค่า ไม่ใช่ค่าว่าง
+        if(portObj.live.eaName && portObj.live.eaName !== '--')
+          eaNameCache[portName] = portObj.live.eaName;
+      }
+      if(portObj.history) newHistory[portName] = portObj.history;
     });
 
     // ตรวจว่า history structure เปลี่ยนไหม (มีวันใหม่เพิ่มหรือไม่)
@@ -723,7 +729,7 @@ function renderS3(){
     const server = live.server || '--';
     const statusBadge = getStatusBadge(live);
 
-    const eaName = live.eaName || '--';
+    const eaName = (live.eaName && live.eaName !== '--') ? live.eaName : (eaNameCache[portName] || '--');
     return '<tr>' +
       '<td><div class="port-name-col">' + portName + '</div><div class="port-id-col">' + login + '</div></td>' +
       '<td><div class="server-col">' + eaName + '</div></td>' +
